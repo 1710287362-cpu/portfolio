@@ -346,11 +346,11 @@ elements:
   - elementId: n5-title
     elementType: text
     bounds: [1436, 300, 168, 62]
-    content: {fontSize: 23, bold: true, color: "$white", lineHeight: 1.25, align: [left, top], text: "枫泾古镇"}
+    content: {fontSize: 23, bold: true, color: "$white", lineHeight: 1.25, align: [left, top], text: "枫泾古镇 FENGJING"}
   - elementId: n5-meta
     elementType: text
     bounds: [1436, 372, 168, 56]
-    content: {fontSize: 16, color: "$grey", lineHeight: 1.5, align: [left, top], text: "网页设计 + 前端 · 2025"}
+    content: {fontSize: 16, color: "$grey", lineHeight: 1.5, align: [left, top], text: "响应式 Slow Web · 2025"}
   - elementId: n5-dot
     elementType: shape
     bounds: [1507, 553, 26, 26]

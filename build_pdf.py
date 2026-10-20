@@ -21,9 +21,13 @@ pages = [
     (load(os.path.join(FRAME, "page-1.png"), (LW, LH)), (960, 540)),   # 01 封面（横）
     (load(os.path.join(FRAME, "page-2.png"), (LW, LH)), (960, 540)),   # 02 简历（横）
 ]
-for i in range(1, 23):
-    pages.append((load(os.path.join(SRC, f"{i}.png"), (PW, PH)), (540, 960)))  # 03-24 项目页（竖）
-pages.append((load(os.path.join(FRAME, "page-3.png"), (LW, LH)), (960, 540)))   # 25 封底（横）
+# 项目页：01-04 项目（1-12）→ 枫泾古镇新版四页 → 06 美团（19-22）
+project_imgs = [os.path.join(SRC, f"{i}.png") for i in range(1, 13)]
+project_imgs += [rf"C:\Users\Dachang\Desktop\枫泾古镇宣传网页\pdf\{i}.png" for i in range(1, 5)]
+project_imgs += [os.path.join(SRC, f"{i}.png") for i in range(19, 23)]
+for p in project_imgs:
+    pages.append((load(p, (PW, PH)), (540, 960)))
+pages.append((load(os.path.join(FRAME, "page-3.png"), (LW, LH)), (960, 540)))   # 封底（横）
 
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
