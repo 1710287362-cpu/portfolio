@@ -1,0 +1,128 @@
+/* 作品集页样式 */
+.works-page {
+  background: var(--black);
+  min-height: 100vh;
+  padding-top: 120px;
+  padding-bottom: 100px;
+}
+
+.works-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.works-title {
+  text-align: center;
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: 3px;
+  margin-bottom: 60px;
+}
+
+/* 三列网格 */
+.works-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* 作品卡片 */
+.work-card {
+  position: relative;
+  background: var(--light-gray);
+  aspect-ratio: 16 / 9;
+  cursor: pointer;
+  overflow: hidden;
+}
+.work-card .thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+.work-card .video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 空白模板卡片 */
+.work-card .placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #202020;
+  color: #7a7a7a;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+.placeholder .plus {
+  font-size: 36px;
+  font-weight: 300;
+  color: #5a5a5a;
+  line-height: 1;
+}
+
+/* 项目编号：左上角 */
+.work-card .overlay .work-num {
+  position: absolute;
+  top: 14px;
+  left: 20px;
+  color: var(--orange);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-style: italic;
+}
+
+/* 悬停遮罩：显示名称与类别 */
+.work-card .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.work-card:hover .overlay {
+  opacity: 1;
+}
+.work-card:hover .thumb {
+  transform: scale(1.05);
+}
+.overlay .work-name {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.overlay .work-cat {
+  color: var(--orange);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+}
+
+@media (max-width: 768px) {
+  .works-inner { padding: 0 20px; }
+  .works-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .works-title { margin-bottom: 44px; font-size: 26px; }
+  .overlay .work-name { font-size: 15px; }
+  .overlay .work-cat { font-size: 12px; }
+}
+@media (max-width: 480px) {
+  .works-page { padding-top: 100px; }
+  .works-grid { grid-template-columns: 1fr; gap: 12px; }
+  .works-title { font-size: 24px; margin-bottom: 36px; }
+  .placeholder { font-size: 13px; }
+}

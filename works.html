@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="沈奕旸 YOUNG 作品集" />
+    <link rel="preconnect" href="https://1710287362-cpu.github.io" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <title>作品集 | 沈奕旸 YOUNG</title>
+    <link rel="stylesheet" href="./styles/base.css?v=20261019" />
+    <link rel="stylesheet" href="./styles/works.css?v=20261019" />
+  </head>
+  <body>
+    <!-- 顶部导航（深色页面） -->
+    <nav class="site-nav on-dark">
+      <div class="nav-inner">
+        <a class="brand" href="./index.html">
+          <span class="cn">沈奕旸</span>
+          <span class="sep"></span>
+          <span class="en">YOUNG</span>
+        </a>
+        <div class="nav-right">
+          <a class="nav-link active" href="./works.html">作品集</a>
+          <a class="nav-link" href="./about.html">关于我</a>
+          <button class="btn-resume" id="btnResume">下载简历</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="page works-page">
+      <div class="works-inner">
+        <h1 class="works-title">作品集</h1>
+
+        <div class="works-grid">
+          <!-- 作品卡片 1：迷失的星星 · 上面视频 + 下面提案排版 -->
+          <div class="work-card" data-project
+               data-title="迷失的星星 · 创意短片"
+               data-video="./assets/videos/lost-stars.mp4"
+               data-poster="./assets/images/lost-stars-cover.jpg"
+               data-imgs="./assets/images/lost-stars-poster-1.jpg,./assets/images/lost-stars-poster-2.jpg">
+            <img class="thumb" src="./assets/images/lost-stars-cover.jpg" alt="《迷失的星星》封面" />
+            <div class="overlay">
+              <span class="work-num">1.</span>
+              <span class="work-name">迷失的星星</span>
+              <span class="work-cat">创意短片</span>
+            </div>
+          </div>
+
+          <!-- 作品卡片 2：莱福汀面霜TVC · 上面视频 + 下面提案排版 -->
+          <div class="work-card" data-project
+               data-title="莱福汀面霜TVC · 创意广告"
+               data-video="./assets/videos/lafting-tvc.mp4"
+               data-poster="./assets/images/lafting-cover.jpg"
+               data-imgs="./assets/images/lafting-poster-1.jpg,./assets/images/lafting-poster-2.jpg,./assets/images/lafting-poster-3.jpg">
+            <img class="thumb" src="./assets/images/lafting-cover.jpg" alt="《莱福汀面霜TVC》封面" />
+            <div class="overlay">
+              <span class="work-num">2.</span>
+              <span class="work-name">莱福汀面霜TVC</span>
+              <span class="work-cat">创意广告</span>
+            </div>
+          </div>
+
+          <!-- 作品卡片 3：未上传，留空模板 -->
+          <div class="work-card">
+            <div class="placeholder">
+              <span class="plus">+</span>
+              <span>待上传视频</span>
+            </div>
+            <div class="overlay">
+              <span class="work-num">3.</span>
+              <span class="work-name">作品三</span>
+              <span class="work-cat">视频创作</span>
+            </div>
+          </div>
+
+          <!-- 作品卡片 4：未上传，留空模板 -->
+          <div class="work-card">
+            <div class="placeholder">
+              <span class="plus">+</span>
+              <span>待上传视频</span>
+            </div>
+            <div class="overlay">
+              <span class="work-num">4.</span>
+              <span class="work-name">作品四</span>
+              <span class="work-cat">视频创作</span>
+            </div>
+          </div>
+
+          <!-- 作品卡片 5：未上传，留空模板 -->
+          <div class="work-card">
+            <div class="placeholder">
+              <span class="plus">+</span>
+              <span>待上传视频</span>
+            </div>
+            <div class="overlay">
+              <span class="work-num">5.</span>
+              <span class="work-name">作品五</span>
+              <span class="work-cat">视频创作</span>
+            </div>
+          </div>
+
+          <!-- 作品卡片 6：未上传，留空模板 -->
+          <div class="work-card">
+            <div class="placeholder">
+              <span class="plus">+</span>
+              <span>待上传视频</span>
+            </div>
+            <div class="overlay">
+              <span class="work-num">6.</span>
+              <span class="work-name">作品六</span>
+              <span class="work-cat">视频创作</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 下载简历弹窗 -->
+    <div class="modal-overlay" id="resumeModal">
+      <div class="modal-box">
+        <h3>下载简历</h3>
+        <p>选择您需要的简历文件格式进行下载。</p>
+        <div class="modal-actions">
+          <button class="modal-btn cancel" id="closeModal">取消</button>
+          <button class="modal-btn download" id="do-download">下载 PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 项目视频弹窗 -->
+    <div class="video-modal" id="videoModal">
+      <button class="video-modal-close" id="closeVideoModal">✕</button>
+      <video id="modalVideo" controls="" playsinline="" webkit-playsinline="" x5-playsinline=""></video>
+    </div>
+
+    <!-- 站内网站预览（沉浸式打开外部链接） -->
+    <div class="site-viewer" id="siteViewer">
+      <div class="site-viewer-bar">
+        <button class="site-viewer-back" id="siteViewerBack">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          返回作品集
+        </button>
+        <div class="site-viewer-title" id="siteViewerTitle"></div>
+        <button class="site-viewer-newtab" id="siteViewerNewTab">在新标签页打开</button>
+      </div>
+      <div class="site-viewer-loading" id="siteViewerLoading">
+        <div class="spinner"></div>
+      </div>
+      <iframe id="siteFrame" src="" title="项目网站预览"></iframe>
+    </div>
+
+    <!-- 项目详情视图：上面视频 + 下面提案排版（内容动态填充） -->
+    <div class="project-viewer" id="projectViewer">
+      <div class="site-viewer-bar">
+        <button class="site-viewer-back" id="projectViewerBack">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          返回作品集
+        </button>
+        <div class="site-viewer-title" id="projectViewerTitle"></div>
+        <span class="site-viewer-newtab" style="visibility:hidden">占位</span>
+      </div>
+      <div class="project-viewer-body">
+        <video id="projectViewerVideo" controls playsinline webkit-playsinline x5-playsinline></video>
+        <div class="project-viewer-caption">创意提案 · 排版设计</div>
+        <div class="project-viewer-imgs" id="projectViewerImgs"></div>
+      </div>
+    </div>
+
+    <script src="./scripts/main.js?v=20261019"></script>
+  </body>
+</html>

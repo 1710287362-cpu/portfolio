@@ -1,0 +1,1270 @@
+/* ============ 《迷失的星星》翻书交互（真实叶片翻页 · 底层先切版） ============
+ * 页面顺序：头图视频 → 0 → 1 → t1 → t2 → t3 → 2 → t4 → t5 → t6 → 3 → 4 → 5 →【全屏 6】
+ *
+ * 封面：点击/左拖翻开；第一页点左半 = 合书
+ * 翻页：点击右/左半页翻下/上一页；拖动时叶片跟手（指针位置直接映射为叶片转角），
+ *       往左拖=向前翻、往右拖=向后翻，松手时没过 35% 退回取消；视频在翻页完成后才加载
+ *   - 翻页准备：截取当前页定格（视频当前帧）；底层溶解到目标页，
+ *     被掀起对侧（前翻=右半）立即露出下一页内容
+ *   - 另一半用当前页定格盖到 65% 再快速淡出切换（翻页全程都有定格画面兜底）
+ *   - 目标页视频只在后台缓冲，画面由 poster/定格帧兜底
+ *   - 叶片正面 = 被掀起半页的定格（前翻=当前页右半，回翻=上一页右半）
+ *   - 叶片背面 = 目标页对应半页封面，落下时与底层完全衔接
+ *   - 翻页结束：叶片收走，目标页视频从头开播
+ *
+ * 视频规则：github.io 对 <video> 流式请求限速（只缓冲约 2 秒），改为整文件 fetch 成 blob
+ *           按页序预取（书页视频 → 全屏 6 → 完整视频），播本地源零卡顿；
+ *           没下完就翻到该页 → 转圈等下完自动开播，失败回退网络流。
+ *           到页自动静音播放（3/4/5 有声、默认静音，右下角半透明静音键全局互通），
+ *           不循环、停尾帧；翻走即复位，每次翻回都从头播放（左右两页画面始终一致）；
+ *           合书全部复位。
+ * 片尾：5 播放至最后约 1.6 秒时整屏渐黑（5 不停，跟着全屏一起变黑），随后全屏播放 6；
+ *       5 上点右页或向左拖动可手动提前进入 6，转场效果相同。
+ * 完整视频：6 播完出现"观看完整视频"按钮；封面页有"直接观看完整视频"入口；
+ *           完整视频全屏播放（声音开关互通），页面空闲时后台预加载。
+ */
+(function () {
+  'use strict';
+
+  /* 视频走 CDN：github.io 对 mp4 限速仅 ~17KB/s（内嵌播放两秒即卡），
+     jsDelivr(~300KB/s) 与 GitHub Release(~280KB/s) 通道正常 */
+  var CDN = 'assets/';
+  var FULL_SRC = '../assets/videos/lost-stars.mp4';
+  var PAGES = [
+    { type: 'video', src: CDN + 'hero.mp4',   poster: CDN + 'poster_hero.jpg' },
+    { type: 'video', src: CDN + '0.mp4?v=2',  poster: CDN + 'poster_0.jpg'    },
+    { type: 'video', src: CDN + '1.mp4?v=2',  poster: CDN + 'poster_1.jpg'    },
+    { type: 'image', src: CDN + 't1.webp',   poster: CDN + 't1.webp'         },
+    { type: 'image', src: CDN + 't2.webp',   poster: CDN + 't2.webp'         },
+    { type: 'image', src: CDN + 't3.webp',   poster: CDN + 't3.webp'         },
+    { type: 'video', src: CDN + '2.mp4?v=2',  poster: CDN + 'poster_2.jpg'    },
+    { type: 'image', src: CDN + 't4.webp',   poster: CDN + 't4.webp'         },
+    { type: 'image', src: CDN + 't5.webp',   poster: CDN + 't5.webp'         },
+    { type: 'image', src: CDN + 't6.webp',   poster: CDN + 't6.webp'         },
+    { type: 'video', src: CDN + '3.mp4?v=2',  poster: CDN + 'poster_3.jpg', sound: true },
+    { type: 'video', src: CDN + '4.mp4?v=2',  poster: CDN + 'poster_4.jpg', sound: true },
+    { type: 'video', src: CDN + '5.mp4?v=2',  poster: CDN + 'poster_5.jpg', sound: true, fadeout: true }
+  ];
+  var N = PAGES.length;
+  var FADE_IDX = N - 1;                       // 5 的索引（最后一张书页）
+  var VIDEO6 = { src: CDN + '6.mp4', poster: CDN + 'poster_6.jpg' };
+  var FULL   = { src: FULL_SRC + '?v=2', poster: CDN + 'poster_full.jpg' };
+  var FADE_AHEAD = 1.6;                       // 5 结尾提前渐黑的秒数
+
+  var book       = document.getElementById('book');
+  var spreadBase = document.getElementById('spreadBase');
+  var baseSlot   = document.getElementById('baseSlot');
+  var baseShade  = document.getElementById('pageShade');
+  var leaf       = document.getElementById('leaf');
+  var frontView  = document.getElementById('frontView');
+  var backView   = document.getElementById('backView');
+  var leafShades = leaf.querySelectorAll('.leaf-shade');
+  var cover      = document.getElementById('coverFlip');
+  var cShade     = document.getElementById('coverShade');
+  var dotsBox    = document.getElementById('dots');
+  var hint       = document.getElementById('hint');
+
+  /* ---------- 每页内容：底层一份（直播） + 叶片封面一份（静态图） ---------- */
+  function makeVideo(src, poster) {
+    var v = document.createElement('video');
+    v.src = src;
+    if (poster) v.poster = poster;
+    v.preload = 'metadata';   // 按需缓冲：翻到该页才升级为 auto
+    v.playsInline = true;
+    v.setAttribute('playsinline', '');
+    v.setAttribute('muted', '');
+    v.muted = true;
+    return v;
+  }
+  function makeImg(src) {
+    var im = new Image();
+    im.src = src;
+    im.draggable = false;
+    return im;
+  }
+
+  var contents = [], clones = [], cloneImgs = [];
+  var vBase = {};                    // index -> 底层 video
+  var snapCanvas = document.createElement('canvas');
+  var pool = document.createElement('div');
+
+  // 半页遮盖层：翻页时用旧页面的半页盖住"晚切换"的一侧
+  var overlay  = document.createElement('div');
+  var ovPaper  = document.createElement('div');
+  var ovView   = document.createElement('div');
+  var ovSlot   = document.createElement('div');
+  var ovImg    = makeImg('');
+  overlay.className = 'half-overlay';
+  ovPaper.className = 'ov-paper';
+  ovView.className  = 'ov-view';
+  ovSlot.className  = 'page-content';
+  ovSlot.appendChild(ovImg);
+  ovView.appendChild(ovSlot);
+  overlay.appendChild(ovPaper);
+  overlay.appendChild(ovView);
+
+  function showOverlay(dir) {
+    overlay.className = 'half-overlay ' + (dir > 0 ? 'ov-left' : 'ov-right');
+    overlay.style.transition = 'none';
+    overlay.style.visibility = 'visible';
+    overlay.style.opacity = '1';
+  }
+  function hideOverlay() {
+    overlay.style.transition = 'opacity .12s ease';
+    overlay.style.opacity = '0';
+    setTimeout(function () {
+      overlay.style.visibility = 'hidden';
+      overlay.style.transition = 'none';
+    }, 150);
+  }
+  spreadBase.appendChild(overlay);
+
+  /* ---------- 全局声音开关 + 渐黑层 + 全屏 6 ---------- */
+  var soundOn = false;      // 3/4/5/6 有声页的全局开关：点一次开声，再点恢复静音
+  var phase6  = false;      // 是否已进入全屏 6
+  var phaseFull = false;    // 是否正在全屏播放完整视频
+  var ending5 = false;      // 5 是否已触发渐黑
+
+  var muteBtn = document.createElement('button');
+  muteBtn.id = 'muteBtn';
+  muteBtn.setAttribute('aria-label', '声音开关');
+  var fadeEl = document.createElement('div');
+  fadeEl.id = 'fadeBlack';
+  var stage6 = document.createElement('div');
+  stage6.id = 'stage6';
+  var video6 = makeVideo(VIDEO6.src, VIDEO6.poster);
+  video6.preload = 'none';  // 进入全屏阶段才加载
+  stage6.appendChild(video6);
+  document.body.appendChild(fadeEl);
+  document.body.appendChild(stage6);
+  document.body.appendChild(muteBtn);
+
+  // 完整视频（全屏）：片尾 6 播完进入，或封面页直接观看
+  var stageFull = document.createElement('div');
+  stageFull.id = 'stageFull';
+  var videoFull = makeVideo(FULL.src, FULL.poster);
+  videoFull.preload = 'none';   // 页面空闲后后台预加载
+  stageFull.appendChild(videoFull);
+  document.body.appendChild(stageFull);
+
+  // 6 播完后：观看完整视频
+  var sixEnd = document.createElement('div');
+  sixEnd.className = 'video-end-overlay';
+  var sixEndBtn = document.createElement('button');
+  sixEndBtn.className = 'pill-btn';
+  sixEndBtn.textContent = '▶ 观看完整视频';
+  sixEnd.appendChild(sixEndBtn);
+  stage6.appendChild(sixEnd);
+
+  // 完整视频播完后：重新播放
+  var fullEnd = document.createElement('div');
+  fullEnd.className = 'video-end-overlay';
+  var fullEndBtn = document.createElement('button');
+  fullEndBtn.className = 'pill-btn';
+  fullEndBtn.textContent = '↻ 重新播放';
+  fullEnd.appendChild(fullEndBtn);
+  stageFull.appendChild(fullEnd);
+
+  // 全屏加载中转圈提示（网络慢时避免"卡住"的错觉）
+  var fsLoad = document.createElement('div');
+  fsLoad.className = 'fs-loading';
+  fsLoad.appendChild(document.createElement('i'));
+  stageFull.appendChild(fsLoad);
+
+  // B 站式播放控制条（仅完整视频）：播放/暂停 · 进度（可点可拖）· 时间 · 静音 · 全屏
+  var fullCtl = document.createElement('div');
+  fullCtl.id = 'fullCtl';
+  var ctlPlay = document.createElement('button');
+  ctlPlay.className = 'fctl-btn';
+  ctlPlay.textContent = '▶';
+  var ctlTime = document.createElement('span');
+  ctlTime.className = 'fctl-time';
+  ctlTime.textContent = '0:00 / 0:00';
+  var fprog = document.createElement('div');
+  fprog.className = 'fprog';
+  var fbuf = document.createElement('div');
+  fbuf.className = 'fprog-buf';
+  var ffill = document.createElement('div');
+  ffill.className = 'fprog-fill';
+  var fknob = document.createElement('div');
+  fknob.className = 'fprog-knob';
+  fprog.appendChild(fbuf);
+  fprog.appendChild(ffill);
+  fprog.appendChild(fknob);
+  var ctlMute = document.createElement('button');
+  ctlMute.className = 'fctl-btn';
+  var ctlFs = document.createElement('button');
+  ctlFs.className = 'fctl-btn';
+  ctlFs.textContent = '⛶';
+  fullCtl.appendChild(ctlPlay);
+  fullCtl.appendChild(ctlTime);
+  fullCtl.appendChild(fprog);
+  fullCtl.appendChild(ctlMute);
+  fullCtl.appendChild(ctlFs);
+  stageFull.appendChild(fullCtl);
+
+  // 全屏退出按钮：不强制观看，随时返回书里
+  function makeExitBtn() {
+    var b = document.createElement('button');
+    b.className = 'fs-exit';
+    b.textContent = '✕';
+    b.setAttribute('aria-label', '退出全屏播放');
+    return b;
+  }
+  var sixExitBtn = makeExitBtn();
+  stage6.appendChild(sixExitBtn);
+  var fullExitBtn = makeExitBtn();
+  stageFull.appendChild(fullExitBtn);
+
+  // 封面入口：直接观看完整视频（不必翻完所有页）
+  var fullEntry = document.createElement('button');
+  fullEntry.id = 'fullEntry';
+  fullEntry.textContent = '▶ 直接观看完整视频';
+  document.body.appendChild(fullEntry);
+
+  /* ---------- 底部快速翻页条：缩略图直达 + 加速翻页效果 ---------- */
+  var navBar = document.createElement('div');
+  navBar.id = 'navBar';
+  var navPrev = document.createElement('button');
+  navPrev.className = 'nav-arrow';
+  navPrev.textContent = '‹';
+  navPrev.setAttribute('aria-label', '上一页');
+  var navNext = document.createElement('button');
+  navNext.className = 'nav-arrow';
+  navNext.textContent = '›';
+  navNext.setAttribute('aria-label', '下一页');
+  var navThumbs = document.createElement('div');
+  navThumbs.id = 'navThumbs';
+  var navImgs = [];
+  PAGES.forEach(function (p, i) {
+    var im = makeImg(p.poster);
+    im.addEventListener('click', function (e) {
+      e.stopPropagation();
+      flipTo(i);
+    });
+    navThumbs.appendChild(im);
+    navImgs.push(im);
+  });
+  navBar.appendChild(navPrev);
+  navBar.appendChild(navThumbs);
+  navBar.appendChild(navNext);
+  document.body.appendChild(navBar);
+  // 书页打开后常驻：观看完整视频（位于翻页条上方居中，渐黑转场进入）
+  var fullEntryOpen = document.createElement('button');
+  fullEntryOpen.id = 'fullEntryOpen';
+  fullEntryOpen.textContent = '▶ 观看完整视频';
+  document.body.appendChild(fullEntryOpen);
+  fullEntryOpen.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (phaseFull) return;
+    fullFrom = 'page';
+    fadeEl.classList.add('on');
+    setTimeout(openFull, 900);
+  });
+  navPrev.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (mode === 'open') startTurn(-1);
+  });
+  navNext.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (mode === 'open') startTurn(1);
+  });
+
+  function syncMuteBtn() { muteBtn.textContent = soundOn ? '🔊' : '🔇'; }
+  // 位置：书页阶段锚定到摊开书页的右下角内（≈视频右下角），全屏时固定屏幕右下角
+  function updateMuteVis() {
+    var show = !phaseFull && (phase6 || (mode === 'open' && !!PAGES[s].sound));
+    muteBtn.classList.toggle('show', show);
+    fullEntry.classList.toggle('show', mode === 'closed');
+    navBar.classList.toggle('show', !phase6 && !phaseFull &&
+      (mode === 'open' || mode === 'turning'));
+    fullEntryOpen.classList.toggle('show', !phase6 && !phaseFull &&
+      (mode === 'open' || mode === 'turning'));
+    muteBtn.style.left = 'auto';
+    muteBtn.style.right = 'auto';
+    muteBtn.style.top = 'auto';
+    muteBtn.style.bottom = 'auto';
+    if (phase6 || phaseFull) {
+      muteBtn.style.right = '26px';
+      muteBtn.style.bottom = '24px';
+    } else {
+      // 书页阶段：固定在跨页视频画面的右上角
+      var r = baseSlot.getBoundingClientRect();
+      muteBtn.style.left = Math.round(r.right - 60) + 'px';
+      muteBtn.style.top = Math.round(r.top + 10) + 'px';
+    }
+  }
+  window.addEventListener('resize', updateMuteVis);
+  window.addEventListener('scroll', updateMuteVis, true);
+  muteBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setSound(!soundOn);
+  });
+  syncMuteBtn();
+
+  PAGES.forEach(function (page, i) {
+    var div = document.createElement('div');
+    div.className = 'page-content';
+    var cdiv = document.createElement('div');
+    cdiv.className = 'page-content';
+    var cim = makeImg(page.poster);  // 叶片封面图
+
+    if (page.type === 'video') {
+      var v1 = makeVideo(page.src, page.poster);
+      div.appendChild(v1);
+      vBase[i] = v1;
+      // 缓冲指示：移动端网络慢，视频在拉数据时给出加载环，避免看起来像坏掉
+      var ld = document.createElement('div');
+      ld.className = 'page-loading';
+      div.appendChild(ld);
+      v1.addEventListener('waiting', function () { ld.classList.add('show'); });
+      v1.addEventListener('playing', function () { ld.classList.remove('show'); });
+      v1.addEventListener('canplay', function () { ld.classList.remove('show'); });
+      v1.addEventListener('error', function () {
+        ld.classList.add('show');
+        // 网络错误自动重载一次（清空后重拉）
+        if (!v1.__errRetry) {
+          v1.__errRetry = true;
+          setTimeout(function () { try { v1.load(); } catch (e) {} }, 2000);
+        }
+      });
+    } else {
+      div.appendChild(makeImg(page.src));
+    }
+    cdiv.appendChild(cim);
+    contents[i] = div;
+    clones[i] = cdiv;
+    cloneImgs[i] = cim;
+  });
+
+  /* ---------- 5 的渐黑 → 全屏 6 衔接 ---------- */
+  // 手动从 5 翻到 6：渐黑后进入全屏（转场效果与自动衔接一致）
+  // 5 不暂停：视频继续播放，跟着整屏一起渐黑，画面不消失
+  function startEnding() {
+    if (phase6 || ending5) return;
+    ending5 = true;
+    fadeEl.classList.add('on');
+    setTimeout(enter6, 1300);
+  }
+  function enter6() {
+    if (phase6) return;
+    phase6 = true;
+    mode = 'six';
+    pauseAll(false);
+    book.style.visibility = 'hidden';
+    dotsBox.classList.remove('show');
+    hint.classList.add('hidden');
+    stage6.classList.add('show');
+    video6.muted = !soundOn;
+    // 已整文件下载：换 blob 源零卡顿起播；还在下载则转圈等下完自动起播
+    if (video6.__blobUrl && video6.src !== video6.__blobUrl) {
+      try { video6.src = video6.__blobUrl; video6.load(); } catch (e) {}
+    }
+    if (video6.__blobPending && !video6.__blobUrl) {
+      fsLoad.classList.add('show');
+    } else {
+      video6.preload = 'auto';
+      video6.load();       // 显式加载，避免 play() 与加载竞争被中断
+      tryPlay(video6);
+    }
+    warmFull();          // 兜底：预取队列被跳过（慢网）时在此预载完整视频
+    updateMuteVis();
+  }
+
+  /* ---------- 完整视频（全屏） ---------- */
+  var fullRetries = 0;
+  var fullFrom = 'cover';   // 完整视频的进入来源：cover=封面入口，six=6 播完
+  // 退出全屏视频，回到书里（toCover=true 回到合上的封面）
+  function backToBook(toCover) {
+    phase6 = false;
+    phaseFull = false;
+    ending5 = false;
+    fadeEl.classList.remove('on');
+    stage6.classList.remove('show');
+    stageFull.classList.remove('show');
+    video6.pause();
+    videoFull.pause();
+    sixEnd.classList.remove('show');
+    fullEnd.classList.remove('show');
+    fsLoad.classList.remove('show');
+    book.style.visibility = '';
+    if (toCover) {
+      mode = 'closed';
+      pc = 0;
+      s = 0;
+      renderCover(0);
+      cover.style.opacity = '';
+      setBaseContent(0);
+      dotsBox.classList.remove('show');
+      hint.textContent = '轻点或向左拖动 · 翻开这本书';
+      hint.classList.remove('hidden');
+    } else {
+      mode = 'open';       // 回到第 5 页（s 仍是 FADE_IDX，页面状态保留）
+      renderIdle();
+      cover.style.opacity = '0';
+      dotsBox.classList.add('show');
+      updateDots(s);
+    }
+    updateMuteVis();
+  }
+  // 慢网/移动端判断：省流模式、2G 或窄屏都不后台预载 33MB 完整视频
+  // （它会在弱网抢占书页视频的带宽，用户点了"观看完整视频"再加载也来得及）
+  function slowNet() {
+    var c = navigator.connection || {};
+    return !!c.saveData || /2g/.test(c.effectiveType || '') || window.innerWidth < 768;
+  }
+  function warmFull() {
+    if (slowNet()) return;
+    if (!phaseFull && videoFull.preload !== 'auto') {
+      videoFull.preload = 'auto';
+      videoFull.load();  // 后台静默缓冲，点击时多半已就绪
+    }
+  }
+  function openFull() {
+    if (phaseFull) return;
+    phaseFull = true;
+    mode = 'full';
+    pauseAll(false);
+    video6.pause();
+    fadeEl.classList.remove('on');
+    book.style.visibility = 'hidden';
+    dotsBox.classList.remove('show');
+    hint.classList.add('hidden');
+    stage6.classList.remove('show');
+    stageFull.classList.add('show');
+    if (videoFull.preload !== 'auto') {   // 后台已预载则不重置缓冲，避免 play 被中断
+      videoFull.preload = 'auto';
+      videoFull.load();
+    }
+    fullRetries = 0;
+    videoFull.muted = !soundOn;
+    fsLoad.classList.add('show');
+    tryPlay(videoFull);
+    pokeCtl();
+    updateMuteVis();
+  }
+
+  /* ---------- 全局声音开关（静音键与控制条互通） ---------- */
+  function setSound(on) {
+    soundOn = on;
+    Object.keys(vBase).forEach(function (k) {
+      if (PAGES[k].sound) vBase[k].muted = !on;
+    });
+    video6.muted = !on;
+    videoFull.muted = !on;
+    syncMuteBtn();
+    syncVolIcon();
+  }
+  function syncVolIcon() { ctlMute.textContent = soundOn ? '🔊' : '🔇'; }
+  syncVolIcon();
+
+  /* ---------- 完整视频播放控制条 ---------- */
+  function fmtT(t) {
+    t = Math.max(0, Math.floor(t || 0));
+    var m = Math.floor(t / 60), s = t % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  function syncCtlTime() {
+    ctlTime.textContent = fmtT(videoFull.currentTime) + ' / ' + fmtT(videoFull.duration);
+  }
+  function syncProg(previewP) {
+    var p = previewP != null ? previewP :
+      (videoFull.duration ? videoFull.currentTime / videoFull.duration : 0);
+    p = Math.min(1, Math.max(0, p));
+    ffill.style.width = (p * 100).toFixed(2) + '%';
+    fknob.style.left = (p * 100).toFixed(2) + '%';
+    try {
+      if (videoFull.buffered.length && videoFull.duration) {
+        fbuf.style.width = (videoFull.buffered.end(videoFull.buffered.length - 1) /
+          videoFull.duration * 100).toFixed(2) + '%';
+      }
+    } catch (e) {}
+  }
+  function syncPlayIcon() {
+    ctlPlay.textContent = (videoFull.paused || videoFull.ended) ? '▶' : '❚❚';
+  }
+  function toggleFullPlay() {
+    if (videoFull.ended) {
+      try { videoFull.currentTime = 0; } catch (e) {}
+      fullEnd.classList.remove('show');
+    }
+    if (videoFull.paused) { videoFull.muted = !soundOn; tryPlay(videoFull); }
+    else videoFull.pause();
+  }
+  ctlPlay.addEventListener('click', function (e) { e.stopPropagation(); toggleFullPlay(); });
+  ctlMute.addEventListener('click', function (e) { e.stopPropagation(); setSound(!soundOn); });
+  ctlFs.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (document.fullscreenElement) { document.exitFullscreen(); }
+    else if (stageFull.requestFullscreen) { stageFull.requestFullscreen(); }
+  });
+  videoFull.addEventListener('click', function (e) { e.stopPropagation(); toggleFullPlay(); });
+
+  // 进度条：点击/拖动跳转
+  var seeking = false;
+  function progPos(clientX) {
+    var r = fprog.getBoundingClientRect();
+    return Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+  }
+  fprog.addEventListener('pointerdown', function (e) {
+    e.stopPropagation();
+    seeking = true;
+    fprog.setPointerCapture(e.pointerId);
+    syncProg(progPos(e.clientX));
+  });
+  fprog.addEventListener('pointermove', function (e) {
+    if (seeking) syncProg(progPos(e.clientX));
+  });
+  fprog.addEventListener('pointerup', function (e) {
+    if (!seeking) return;
+    seeking = false;
+    var p = progPos(e.clientX);
+    if (videoFull.duration) { try { videoFull.currentTime = p * videoFull.duration; } catch (err) {} }
+    syncProg();
+    syncCtlTime();
+  });
+  videoFull.addEventListener('timeupdate', function () {
+    if (!seeking) syncProg();
+    syncCtlTime();
+    syncPlayIcon();
+  });
+  videoFull.addEventListener('progress', function () { syncProg(); });
+  videoFull.addEventListener('play', syncPlayIcon);
+  videoFull.addEventListener('pause', syncPlayIcon);
+
+  // 控制条自动隐藏：播放时 3 秒无操作隐藏，暂停/结束时常驻
+  var ctlTimer = null;
+  function pokeCtl() {
+    fullCtl.classList.add('show');
+    if (ctlTimer) clearTimeout(ctlTimer);
+    if (!videoFull.paused && !videoFull.ended) {
+      ctlTimer = setTimeout(function () { fullCtl.classList.remove('show'); }, 3000);
+    }
+  }
+  stageFull.addEventListener('mousemove', pokeCtl);
+  stageFull.addEventListener('touchstart', pokeCtl, { passive: true });
+  var v5 = vBase[FADE_IDX];
+  if (v5) {
+    // 播放到尾声时整屏渐黑（5 继续播，随全屏一起变黑），随后进入全屏 6
+    v5.addEventListener('timeupdate', function () {
+      if (phase6 || v5.paused || !v5.duration) return;
+      if (!ending5 && v5.duration - v5.currentTime <= FADE_AHEAD) startEnding();
+    });
+    // 兜底：没走渐黑就直接结束（如被 seek 到末尾）时立刻进入 6
+    v5.addEventListener('ended', function () { if (!ending5) enter6(); });
+  }
+  video6.addEventListener('playing', function () {
+    sixEnd.classList.remove('show');
+    setTimeout(function () { fadeEl.classList.remove('on'); }, 250);
+  });
+  video6.addEventListener('canplay', function () {
+    if (phase6 && video6.paused && !video6.ended) tryPlay(video6);  // 兜底重试
+  });
+  video6.addEventListener('ended', function () {
+    video6.pause();                  // 定格尾帧
+    sixEnd.classList.add('show');    // 给出"观看完整视频"入口
+  });
+
+  // 6 播完 → 完整视频
+  sixEndBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    fullFrom = 'six';
+    openFull();
+  });
+  // 封面页 → 直接观看完整视频（渐黑转场，与书内效果一致）
+  fullEntry.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (phaseFull) return;
+    fullFrom = 'cover';
+    fadeEl.classList.add('on');
+    setTimeout(openFull, 900);
+  });
+  // 退出全屏：6 → 回第 5 页；完整视频 → 按来源回封面或第 5 页
+  sixExitBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    backToBook(false);
+  });
+  fullExitBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    backToBook(fullFrom === 'cover');
+  });
+  // 完整视频播完 → 重新播放
+  fullEndBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    try { videoFull.currentTime = 0; } catch (err) {}
+    fullEnd.classList.remove('show');
+    tryPlay(videoFull);
+  });
+  videoFull.addEventListener('playing', function () {
+    fullEnd.classList.remove('show');
+    fsLoad.classList.remove('show');
+    syncPlayIcon();
+    pokeCtl();
+    setTimeout(function () { fadeEl.classList.remove('on'); }, 250);
+  });
+  videoFull.addEventListener('canplay', function () {
+    if (phaseFull && videoFull.paused && !videoFull.ended) tryPlay(videoFull);
+  });
+  videoFull.addEventListener('ended', function () {
+    videoFull.pause();
+    fsLoad.classList.remove('show');
+    fullEnd.classList.add('show');
+    fullCtl.classList.add('show');   // 结束时常驻控制条
+    syncPlayIcon();
+    syncCtlTime();
+    syncProg();
+  });
+  // 网络错误自动重试（最多 3 次）
+  videoFull.addEventListener('error', function () {
+    if (!phaseFull || fullRetries >= 3) return;
+    fullRetries++;
+    setTimeout(function () {
+      if (!phaseFull || !videoFull.paused) return;
+      videoFull.load();
+      videoFull.muted = !soundOn;
+      tryPlay(videoFull);
+    }, 1500);
+  });
+
+  /* ---------- 页码指示点 ---------- */
+  var dotEls = [];
+  for (var i = 0; i < N; i++) {
+    var d = document.createElement('i');
+    dotsBox.appendChild(d);
+    dotEls.push(d);
+  }
+  function updateDots(idx) {
+    dotEls.forEach(function (el, k) { el.classList.toggle('on', k === idx); });
+    navImgs.forEach(function (im, k) { im.classList.toggle('on', k === idx); });
+  }
+
+  /* ---------- 状态 ---------- */
+  var mode = 'closed';    // closed | opening | open | turning | closing | six
+  var pc = 0;             // 封面开合 0..1
+  var s = 0;              // 当前页索引
+  var turn = null;        // {dir, from, to, q}
+  var hasTurned = false;
+
+  /* ---------- 视频控制 ---------- */
+  // 有声播放被浏览器自动播放策略拦截时：退回静音播，并同步回静音状态
+  function tryPlay(v) {
+    var pr = v.play();
+    if (pr && pr.catch) pr.catch(function () {
+      if (!v.muted) {
+        v.muted = true;
+        var pr2 = v.play();
+        if (pr2 && pr2.catch) pr2.catch(function () {});
+        soundOn = false;
+        syncMuteBtn();
+      }
+    });
+  }
+  function playBase(i) {
+    var v = vBase[i];
+    if (!v) return;
+    if (v.ended) { try { v.currentTime = 0; } catch (e) {} }
+    // 已整文件下载到本地：换成 blob 源再播（本地播放零卡顿）
+    if (v.__blobUrl && v.src !== v.__blobUrl && v.paused) {
+      try { v.src = v.__blobUrl; v.load(); } catch (e) {}
+    }
+    // 整文件还在下载：不播网络流（避免只缓冲两秒就卡死），转圈等下完自动开播
+    if (v.__blobPending && !v.__blobUrl) {
+      v.__playWhenBlob = true;
+      showPageLoading(i, true);
+      return;
+    }
+    v.muted = !(PAGES[i].sound && soundOn);
+    tryPlay(v);
+    warmAhead(i);
+    // 移动端网络慢：数据没到就 play 会失败/黑屏，缓冲够后自动补播
+    if (v.readyState < 3 && !v.__retryPending) {
+      v.__retryPending = true;
+      v.addEventListener('canplay', function onCan () {
+        v.removeEventListener('canplay', onCan);
+        v.__retryPending = false;
+        if (s === i && !v.ended) playBase(i);
+      });
+    }
+  }
+  // 翻走即复位：每次翻回该页都从头播放，避免左右两页画面不一致
+  function pauseBase(i) {
+    var v = vBase[i];
+    if (v) { v.pause(); try { v.currentTime = 0; } catch (e) {} }
+  }
+  function showPageLoading(i, show) {
+    var d = contents[i] && contents[i].querySelector('.page-loading');
+    if (d) d.classList.toggle('show', !!show);
+  }
+  // 按需升级缓冲：翻到该页（或开书到该页）时才开始拉视频数据
+  // 整文件预取（blob）进行中/已完成时不再重复拉网络流
+  function warmBase(i) {
+    var v = vBase[i];
+    if (v && v.preload !== 'auto' && !v.__blobPending && !v.__blobUrl) { v.preload = 'auto'; v.load(); }
+  }
+  // 预加载后面 1~2 页：翻到时已基本缓冲完，不再等加载
+  function warmAhead(i) {
+    warmBase(i + 1);
+    warmBase(i + 2);
+  }
+
+  /* ---------- 整文件预取（blob） ----------
+   * github.io 对 <video> 的分段流式请求限速（只缓冲约 2 秒就卡住），
+   * 但整文件 GET 与直接点开链接一样正常。
+   * 策略：按页序把整个文件 fetch 下来存成 blob，播本地源 = 零卡顿；
+   * 没下完就翻到该页 → 转圈等待，下完自动开播；失败则回退网络流播放。
+   * 完整视频（33MB）排最后，避免抢占书页视频带宽。 */
+  var blobOrder = [], blobIdx = 0;
+  function onBlobReady(i) {
+    var v = vBase[i];
+    if (!v) return;
+    showPageLoading(i, false);
+    if (v.__playWhenBlob) {
+      v.__playWhenBlob = false;
+      if (s === i && !v.ended) playBase(i);
+    }
+  }
+  function fetchNextBlob() {
+    if (blobIdx >= blobOrder.length) {   // 书页视频全部就位
+      fetchVideo6Blob();                 // 再后台预取全屏 6
+      warmFull();                        // 最后才预载 33MB 完整视频
+      return;
+    }
+    var i = blobOrder[blobIdx++];
+    var v = vBase[i];
+    if (!v) { fetchNextBlob(); return; }
+    v.__blobPending = true;
+    fetch(PAGES[i].src)
+      .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.blob(); })
+      .then(function (b) {
+        v.__blobPending = false;
+        v.__blobUrl = URL.createObjectURL(b);
+        onBlobReady(i);
+        fetchNextBlob();
+      })
+      .catch(function () {
+        v.__blobPending = false;   // 失败回退：该页走网络流（原有等待/补播兜底）
+        onBlobReady(i);
+        fetchNextBlob();
+      });
+  }
+  function startBlobQueue() {
+    if (slowNet()) return;   // 省流/2G/窄屏不预取
+    for (var i = 0; i < N; i++) if (PAGES[i].type === 'video') blobOrder.push(i);
+    fetchNextBlob();
+  }
+  // 全屏 6 同样整文件预取（排在书页视频之后）；已在 6 画面则下完自动起播
+  function fetchVideo6Blob() {
+    if (video6.__blobPending || video6.__blobUrl) return;
+    video6.__blobPending = true;
+    fetch(VIDEO6.src)
+      .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.blob(); })
+      .then(function (b) {
+        video6.__blobPending = false;
+        video6.__blobUrl = URL.createObjectURL(b);
+        if (phase6 && video6.paused && !video6.ended && video6.src !== video6.__blobUrl) {
+          try { video6.src = video6.__blobUrl; video6.load(); } catch (e) {}
+          video6.muted = !soundOn;
+          tryPlay(video6);
+        }
+      })
+      .catch(function () { video6.__blobPending = false; });
+  }
+
+  // 视频页当前帧快照（作为叶片正面封面，与底层画面衔接）
+  function snapshotFor(i) {
+    var v = vBase[i];
+    if (!v) return PAGES[i].poster;
+    try {
+      if (v.readyState >= 2 && v.videoWidth) {
+        if (snapCanvas.width !== v.videoWidth) {
+          snapCanvas.width = v.videoWidth;
+          snapCanvas.height = v.videoHeight;
+        }
+        snapCanvas.getContext('2d').drawImage(v, 0, 0);
+        return snapCanvas.toDataURL('image/jpeg', 0.85);
+      }
+    } catch (e) {}
+    return PAGES[i].poster;
+  }
+
+  function pauseAll(reset) {
+    Object.keys(vBase).forEach(function (k) {
+      vBase[k].pause();
+      if (reset) { try { vBase[k].currentTime = 0; } catch (e) {} }
+    });
+  }
+
+  /* ---------- 基础绘制 ---------- */
+  function smooth(a, b, x) {
+    var t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+    return t * t * (3 - 2 * t);
+  }
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function setBaseContent(idx) {
+    while (baseSlot.firstChild) pool.appendChild(baseSlot.firstChild);
+    contents[idx].style.opacity = '';
+    baseSlot.appendChild(contents[idx]);
+  }
+
+  function renderCover(p) {
+    var angle = -180 * p;
+    var lift = Math.sin(p * Math.PI) * 30;
+    cover.style.transform =
+      'translateX(-50%) translateZ(' + lift.toFixed(1) + 'px) rotateY(' + angle.toFixed(2) + 'deg)';
+    cover.style.opacity = p <= 0.42 ? 1 : Math.max(0, 1 - (p - 0.42) / 0.2);
+    cShade.style.opacity = (Math.sin(p * Math.PI) * 0.45).toFixed(3);
+
+    var so = smooth(0.08, 0.55, p);
+    spreadBase.style.opacity = so.toFixed(3);
+    spreadBase.style.transform = 'scale(' + (0.955 + 0.045 * so).toFixed(4) + ')';
+    spreadBase.style.filter = 'brightness(' + (0.55 + 0.45 * so).toFixed(3) + ')';
+    baseShade.style.opacity = (1 - smooth(0.35, 0.85, p)).toFixed(3);
+  }
+
+  function renderIdle() {
+    spreadBase.style.opacity = '1';
+    spreadBase.style.transform = 'scale(1)';
+    spreadBase.style.filter = 'brightness(1)';
+    baseShade.style.opacity = '0';
+  }
+
+  /* ---------- 叶片绘制 ---------- */
+  // 前翻：rotY 0→-180（右半页向左翻）；回翻：-180→0（同一叶片反向播回）
+  function renderLeaf() {
+    var q = turn.q;
+    var rot = turn.dir > 0 ? -180 * q : -180 * (1 - q);
+    leaf.style.transform = 'rotateY(' + rot.toFixed(2) + 'deg)';
+    var sh = (Math.sin(q * Math.PI) * 0.55).toFixed(3);
+    leafShades[0].style.opacity = sh;
+    leafShades[1].style.opacity = sh;
+    baseShade.style.opacity = (Math.sin(q * Math.PI) * 0.22).toFixed(3);
+  }
+
+  /* ---------- 封面开合 ---------- */
+  function animateCover(to, dur, done) {
+    var from = pc, start = performance.now();
+    function tick(now) {
+      var t = Math.min(1, (now - start) / dur);
+      pc = from + (to - from) * easeInOutCubic(t);
+      renderCover(pc);
+      if (t < 1) requestAnimationFrame(tick);
+      else { pc = to; renderCover(pc); if (done) done(); }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function openBook() {
+    if (mode !== 'closed') return;
+    mode = 'opening';
+    setBaseContent(s);
+    warmBase(s);
+    animateCover(1, 1250, function () {
+      mode = 'open';
+      renderIdle();
+      cover.style.opacity = '0';
+      playBase(s);
+      updateMuteVis();
+      dotsBox.classList.add('show');
+      updateDots(s);
+      hint.textContent = '点击右页 · 翻下一页　｜　点击左页 · 返回';
+    });
+  }
+
+  function closeBook() {
+    if (mode !== 'open') return;
+    mode = 'closing';
+    pauseAll(false);
+    updateMuteVis();
+    cover.style.opacity = '';
+    dotsBox.classList.remove('show');
+    animateCover(0, 1100, function () {
+      mode = 'closed';
+      s = 0;
+      setBaseContent(0);
+      pauseAll(true);
+      updateMuteVis();   // 封面入口按钮重新出现
+      hint.textContent = '轻点或向左拖动 · 翻开这本书';
+      if (hasTurned) hint.classList.remove('hidden');
+    });
+  }
+
+  // 底层内容溶解切换（翻页开始时把底层换到目标页）
+  function crossfadeBase(fromEl, toEl, dur) {
+    if (toEl.parentNode !== baseSlot) {
+      toEl.style.opacity = '0';
+      baseSlot.appendChild(toEl);
+    }
+    var start = performance.now();
+    function tick(now) {
+      var t = Math.min(1, (now - start) / dur);
+      var o = easeInOutCubic(t);
+      fromEl.style.opacity = String(1 - o);
+      toEl.style.opacity = String(o);
+      if (t < 1) requestAnimationFrame(tick);
+      else {
+        if (fromEl.parentNode === baseSlot) pool.appendChild(fromEl);
+        fromEl.style.opacity = '';
+        toEl.style.opacity = '';
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- 翻页 ---------- */
+  // chain：翻完后的回调（快速连翻用）；quick=true 时加速动画、跳过半页遮盖
+  function startTurn(dir, chain, quick) {
+    if (mode !== 'open') return;
+    var to = s + dir;
+    if (dir > 0 && to > N - 1) {                     // 最后一页再往前 = 手动进入片尾全屏 6
+      if (s === FADE_IDX) startEnding();
+      return;
+    }
+    if (dir < 0 && to < 0) { closeBook(); return; }  // 首页向左 = 合书
+    mode = 'turning';
+    if (!prepareTurn(dir, to, !!quick)) { mode = 'open'; return; }
+    turn.chain = chain || null;
+    pauseBase(turn.from);   // 暂停并复位：翻回时从头播
+    updateDots(turn.to);
+    leaf.style.visibility = 'visible';
+    renderLeaf();
+    animateLeaf(0, quick ? 140 : 850);
+  }
+
+  // 翻页准备（点击翻页与拖动跟手翻页共用）：
+  // 定格截图 → 叶片两面 → 底层溶解到目标页 → 对侧半页用当前页定格盖住。
+  // 注意：这里不暂停当前页视频——拖动中途取消时底页换回、视频无缝继续播
+  function prepareTurn(dir, to, quick) {
+    var from = s;
+    turn = { dir: dir, from: from, to: to, q: 0, quick: !!quick, chain: null };
+
+    // 先截取当前页定格（视频当前帧）——顺序不能反，否则定格变首帧
+    var fromSnap = PAGES[from].type === 'video' ? snapshotFor(from) : PAGES[from].poster;
+
+    // 叶片固定在中线右侧、绕书脊翻转；回翻只是同一动画反向播放
+    leaf.style.left = '50%';
+    if (dir > 0) {
+      // 前翻：正面=当前页右半定格（被掀起的页），背面=下一页左半封面
+      frontView.appendChild(clones[from]);
+      backView.appendChild(clones[to]);
+      cloneImgs[from].src = fromSnap;
+      cloneImgs[to].src = PAGES[to].poster;
+    } else {
+      // 回翻：背面=当前页左半定格（起始时叶片镜像在左半），正面=上一页右半封面
+      frontView.appendChild(clones[to]);
+      backView.appendChild(clones[from]);
+      cloneImgs[to].src = PAGES[to].poster;
+      cloneImgs[from].src = fromSnap;
+    }
+    if (from === FADE_IDX) { ending5 = false; fadeEl.classList.remove('on'); }
+
+    // 底层立刻溶解到目标页：翻页一开始右半（前翻）/左半（回翻）就直接显示下一页内容
+    crossfadeBase(contents[from], contents[to], 200);
+    warmBase(to);        // 目标页视频后台缓冲，画面由 poster/定格帧兜底
+    // 另一半（被叶片掀起的对侧）用当前页定格盖住，65% 处快速淡出切换，
+    // 既保证翻页全程有定格画面兜底，又让下一页内容尽早露出
+    // 快速连翻时跳过遮盖：速度太快，直接整体切换更有"哗哗翻书"感
+    if (!quick) {
+      ovImg.src = fromSnap;
+      showOverlay(dir);
+      turn.ovHidden = false;
+    } else {
+      turn.ovHidden = true;
+    }
+    return true;
+  }
+
+  var SWAP_Q = 0.65;         // 遮盖淡出点：叶片扫过 65% 时剩余半页切换到目标页
+
+  // 从 fromQ 匀速动画到 q=1（完成翻页，随后 finishTurn 加载并开播目标页视频）
+  function animateLeaf(fromQ, dur) {
+    var start = performance.now();
+    var q0 = fromQ || 0;
+    function tick(now) {
+      var t = Math.min(1, (now - start) / dur);
+      turn.q = q0 + (1 - q0) * easeInOutCubic(t);
+      if (!turn.ovHidden && turn.q >= SWAP_Q) {
+        turn.ovHidden = true;
+        hideOverlay();
+      }
+      renderLeaf();
+      if (t < 1) requestAnimationFrame(tick);
+      else finishTurn();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- 拖动跟手翻页：叶片角度实时跟随指针 ----------
+   * 指针位置直接映射为叶片转角（指针在右缘=0°，书脊=-90°，左缘=-180°）：
+   * 往左拖=向前翻，往右拖=向后翻，拖回原位=取消；
+   * 松手时翻过 35% 就完成本次翻页（视频在翻页完成后才加载），否则退回取消。 */
+  var liveTurn = null;
+  function beginLiveTurn(dir) {
+    if (mode !== 'open' || liveTurn || turn) return;
+    var to = s + dir;
+    if (to < 0 || to > N - 1) return;    // 首页左侧/末页右侧保持原有触发（合书/进6）
+    mode = 'turning';
+    if (!prepareTurn(dir, to, false)) { mode = 'open'; return; }
+    liveTurn = { started: false };
+  }
+  // 指针 x → 本次翻页完成度 q（0..1）
+  // 叶片尖端位置 = 书脊 + 半宽·cos(转角)，令其等于指针位置解出转角：
+  // 指针在右缘=起始（前翻 0 / 回翻未完成），书脊=-90°，左缘=完成
+  function liveQ(clientX) {
+    var rect = book.getBoundingClientRect();
+    var spine = rect.left + rect.width / 2;
+    var c = Math.max(-1, Math.min(1, (clientX - spine) / (rect.width / 2)));
+    var rot = -Math.acos(c) * 180 / Math.PI;
+    return turn.dir > 0 ? (-rot / 180) : (1 + rot / 180);
+  }
+  function moveLiveTurn(clientX) {
+    var q = Math.max(0, Math.min(1, liveQ(clientX)));
+    turn.q = q;
+    if (!liveTurn.started) {
+      liveTurn.started = true;
+      leaf.style.visibility = 'visible';
+    }
+    if (!turn.ovHidden && turn.q >= SWAP_Q) {
+      turn.ovHidden = true;
+      hideOverlay();
+    }
+    renderLeaf();
+  }
+  function endLiveTurn(clientX) {
+    var q = Math.max(0, Math.min(1, liveQ(clientX)));   // 先算（依赖 liveTurn.dir）
+    var lt = liveTurn;
+    liveTurn = null;
+    if (!lt.started) {          // 实际没拖动：等价点击，走完整翻页动画
+      animateLeaf(0, 850);
+      return;
+    }
+    if (q >= 0.35) {            // 已过 35%：完成翻页，视频随后加载播放
+      animateLeaf(q, Math.max(160, (1 - q) * 550));
+    } else {                    // 没过 35%：叶片退回，取消翻页
+      cancelLiveTurn(q);
+    }
+  }
+  function cancelLiveTurn(q0) {
+    var from = turn.from, to = turn.to;
+    var start = performance.now();
+    var dur = Math.max(140, q0 * 320);
+    function tick(now) {
+      var t = Math.min(1, (now - start) / dur);
+      turn.q = q0 * (1 - easeInOutCubic(t));
+      renderLeaf();
+      if (t < 1) requestAnimationFrame(tick);
+      else cleanupCancel(from, to);
+    }
+    requestAnimationFrame(tick);
+  }
+  function cleanupCancel(from, to) {
+    leaf.style.visibility = 'hidden';
+    leaf.style.transform = 'rotateY(0deg)';
+    leafShades[0].style.opacity = '0';
+    leafShades[1].style.opacity = '0';
+    if (clones[from].parentNode) pool.appendChild(clones[from]);
+    if (clones[to].parentNode) pool.appendChild(clones[to]);
+    if (!turn.ovHidden) hideOverlay();
+    crossfadeBase(contents[to], contents[from], 200);   // 底页换回当前页
+    pauseBase(to);                                      // 目标页未落地，停掉其缓冲
+    renderIdle();
+    turn = null;
+    mode = 'open';
+    updateDots(s);
+    updateMuteVis();
+  }
+
+  function finishTurn() {
+    var from = turn.from, to = turn.to, chain = turn.chain;
+    if (!turn.ovHidden) hideOverlay();   // 兜底
+    // 底层已切到目标页，叶片两面内容与之完全衔接，直接收走
+    leaf.style.visibility = 'hidden';
+    leaf.style.transform = 'rotateY(0deg)';
+    leafShades[0].style.opacity = '0';
+    leafShades[1].style.opacity = '0';
+    // 叶片上的封面收回到停车场
+    if (clones[from].parentNode) pool.appendChild(clones[from]);
+    if (clones[to].parentNode) pool.appendChild(clones[to]);
+    pauseBase(from);
+    playBase(to);        // 翻页动画完全结束后，目标页视频才开播
+    if (to === FADE_IDX) { ending5 = false; fadeEl.classList.remove('on'); }
+    renderIdle();
+    s = to;
+    turn = null;
+    mode = 'open';
+    updateDots(s);
+    updateMuteVis();     // 必须在 s/mode 更新之后调用
+    if (!hasTurned) { hasTurned = true; hint.classList.add('hidden'); }
+    // 快速连翻：到达目标页收工，否则继续下一步
+    if (flipTarget != null && s === flipTarget) { flipping = false; flipTarget = null; }
+    if (chain) setTimeout(chain, 40);
+  }
+
+  /* ---------- 快速翻页：底部缩略图直达，中间页加速连翻 ---------- */
+  var flipping = false, flipTarget = null;
+  function flipTo(idx) {
+    if (phase6 || phaseFull) return;
+    if (idx === s) return;
+    if (mode !== 'open' && mode !== 'turning') return;
+    flipTarget = idx;
+    if (!flipping) {
+      flipping = true;
+      stepFlip();
+    }
+  }
+  function stepFlip() {
+    if (flipTarget == null) { flipping = false; return; }
+    if (s === flipTarget) { flipping = false; flipTarget = null; return; }
+    var dir = flipTarget > s ? 1 : -1;
+    var last = (s + dir === flipTarget);   // 最后一步正常速度落下并开播视频
+    startTurn(dir, function () { setTimeout(stepFlip, 15); }, !last);
+  }
+
+  /* ---------- 交互：点击 + 拖动跟手翻页 ---------- */
+  var dragging = false;
+  var downX = 0, downY = 0, downTime = 0, moved = false;
+
+  book.addEventListener('pointerdown', function (e) {
+    if (mode !== 'closed' && mode !== 'open') return;
+    dragging = true;
+    moved = false;
+    downX = e.clientX;
+    downY = e.clientY;
+    downTime = performance.now();
+    try { book.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+
+  book.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var dx = e.clientX - downX, dy = e.clientY - downY;
+    window.__dbg = { dragging: dragging, moved: moved, dx: dx, mode: mode, turn: !!turn, liveTurn: !!liveTurn };
+    if (!moved) {
+      if (Math.abs(dx) <= 8 || Math.abs(dx) < Math.abs(dy)) return;  // 微小/纵向移动忽略
+      moved = true;
+      if (mode === 'open') {
+        var r0 = book.getBoundingClientRect();
+        beginLiveTurn(downX > r0.left + r0.width / 2 ? 1 : -1);
+      }
+    }
+    window.__dbg2 = { moved: moved, mode: mode, liveTurn: !!liveTurn, turnQ: turn ? turn.q : null };
+    if (liveTurn) moveLiveTurn(e.clientX);   // 叶片跟手
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    if (liveTurn) { endLiveTurn(e.clientX); return; }
+    var dx = e.clientX - downX;
+    var quick = performance.now() - downTime < 300;
+
+    if (mode === 'closed') {
+      if ((quick && Math.abs(dx) < 8) || dx < -40) openBook();
+    } else if (mode === 'open') {
+      var rect = book.getBoundingClientRect();
+      var rightHalf = downX > rect.left + rect.width / 2;
+      if (quick && Math.abs(dx) < 8) {
+        startTurn(rightHalf ? 1 : -1);
+      } else if (dx < -50) {
+        startTurn(1);
+      } else if (dx > 50) {
+        startTurn(-1);
+      }
+    }
+  }
+
+  book.addEventListener('pointerup', endDrag);
+  book.addEventListener('pointercancel', endDrag);
+  book.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+  /* ---------- 初始化：预载全部封面图；视频整文件按序预取（blob），播本地源零卡顿 ---------- */
+  setBaseContent(0);
+  renderCover(0);
+  updateMuteVis();
+  // 页面加载完开始整文件预取：书页视频（0..5）→ 全屏 6 → 完整视频
+  if (document.readyState === 'complete') startBlobQueue();
+  else window.addEventListener('load', startBlobQueue);
+  PAGES.forEach(function (p) {
+    var a = new Image(); a.src = p.poster;
+    if (p.type === 'image') { var b = new Image(); b.src = p.src; }
+  });
+
+  /* ---------- 调试参数 ---------- */
+  // ?s=N 直接停在第 N 页（0 起）
+  // ?turn=0.5 前翻进行到 q 的画面；?turnback=0.5 回翻进行到 q 的画面
+  var qs = new URLSearchParams(location.search);
+  if (qs.get('s') !== null || qs.get('turn') !== null || qs.get('turnback') !== null) {
+    var idx = Math.min(N - 1, Math.max(0, parseInt(qs.get('s') || '0', 10) || 0));
+    s = idx;
+    mode = 'open';
+    pc = 1;
+    renderCover(1);
+    cover.style.opacity = '0';
+    renderIdle();
+    setBaseContent(s);
+    dotsBox.classList.add('show');
+    updateDots(s);
+    hint.classList.add('hidden');
+    updateMuteVis();
+    if (qs.get('turn') !== null) {
+      var q = Math.min(1, Math.max(0, parseFloat(qs.get('turn')) || 0));
+      var toF = Math.min(N - 1, s + 1);
+      turn = { dir: 1, from: s, to: toF, q: q };
+      setBaseContent(toF);   // 底层翻页开始即切到目标页
+      if (q < SWAP_Q) {      // 左半页仍被旧页面盖住
+        ovImg.src = PAGES[s].poster;
+        showOverlay(1);
+      }
+      leaf.style.left = '50%';
+      frontView.appendChild(clones[s]);
+      backView.appendChild(clones[toF]);
+      cloneImgs[s].src = PAGES[s].poster;
+      cloneImgs[toF].src = PAGES[toF].poster;
+      leaf.style.visibility = 'visible';
+      renderLeaf();
+      mode = 'frozen';
+    } else if (qs.get('turnback') !== null) {
+      var qb = Math.min(1, Math.max(0, parseFloat(qs.get('turnback')) || 0));
+      var toB = Math.max(0, s - 1);
+      turn = { dir: -1, from: s, to: toB, q: qb };
+      setBaseContent(toB);   // 底层翻页开始即切到目标页
+      if (qb < SWAP_Q) {     // 右半页仍被旧页面盖住
+        ovImg.src = PAGES[s].poster;
+        showOverlay(-1);
+      }
+      leaf.style.left = '50%';
+      frontView.appendChild(clones[toB]);
+      backView.appendChild(clones[s]);
+      cloneImgs[s].src = PAGES[s].poster;
+      cloneImgs[toB].src = PAGES[toB].poster;
+      leaf.style.visibility = 'visible';
+      renderLeaf();
+      mode = 'frozen';
+    } else {
+      playBase(s);
+    }
+  }
+
+  // ?six=1 直接进入全屏 6（调试用）
+  if (qs.get('six') !== null) setTimeout(enter6, 500);
+  // ?full=1 直接进入完整视频（调试用）
+  if (qs.get('full') !== null) setTimeout(openFull, 500);
+
+  // ?s=N&auto=1 自动执行一次真实翻页（auto=-1 回翻），用于复现收尾状态
+  if (qs.get('auto') !== null) {
+    var dirA = parseInt(qs.get('auto'), 10) || 1;
+    window.__playLog = [];
+    document.addEventListener('play', function (e) {
+      var name = e.target.currentSrc ? e.target.currentSrc.split('/').pop() : '?';
+      window.__playLog.push(name + '@' + performance.now().toFixed(0));
+    }, true);
+    setTimeout(function () { startTurn(dirA); }, 800);
+    setInterval(function () {
+      document.title = 'm=' + mode + ' s=' + s + ' q=' + (turn ? turn.q.toFixed(2) : '-') +
+        ' leaf=' + leaf.style.visibility + ' baseKids=' + baseSlot.children.length +
+        ' p6=' + phase6 + ' pF=' + phaseFull +
+        ' plays=' + JSON.stringify(window.__playLog);
+    }, 200);
+  }
+})();

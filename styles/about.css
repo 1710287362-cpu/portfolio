@@ -1,0 +1,184 @@
+/* 关于我 / 简历页样式 */
+.about-page {
+  background: var(--black);
+  min-height: 100vh;
+  padding-top: 120px;
+  padding-bottom: 100px;
+  color: var(--white);
+}
+
+.about-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.about-title {
+  text-align: center;
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+}
+.about-subtitle {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin-bottom: 70px;
+}
+
+/* 图文结合：左右两栏 */
+.about-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 60px;
+  align-items: start;
+}
+
+/* 左侧：照片/形象 + 基本信息卡 */
+.about-figure {
+  position: sticky;
+  top: 120px;
+}
+.avatar-box {
+  background: var(--light-gray);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+.avatar-box img {
+  width: 100%;
+  display: block;
+}
+.avatar-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  background: linear-gradient(145deg, #e2e2e2, #cfcfcf);
+  font-size: 15px;
+  letter-spacing: 2px;
+}
+
+.info-card {
+  border: 1px solid #2c2c2c;
+  border-radius: 12px;
+  padding: 26px 28px;
+}
+.info-card h4 {
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: var(--orange);
+  margin-bottom: 18px;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #222;
+  font-size: 14px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row .label { color: var(--muted); }
+.info-row .value { font-weight: 500; }
+
+/* 右侧：介绍正文 */
+.about-text h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 38px 0 16px;
+  letter-spacing: 1px;
+}
+.about-text h3:first-child { margin-top: 0; }
+.about-text h3 .bar {
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  background: var(--orange);
+  margin-right: 12px;
+  vertical-align: -2px;
+}
+.about-text p {
+  color: #cfcfcf;
+  line-height: 2;
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+/* 技能标签 */
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.skill-tag {
+  border: 1px solid #3a3a3a;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 13px;
+  color: #e5e5e5;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+.skill-tag:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+/* 教育经历 / 经历 */
+.timeline-item {
+  padding-left: 22px;
+  border-left: 2px solid #333;
+  margin-bottom: 26px;
+  position: relative;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+.timeline-item h5 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.timeline-item .time {
+  font-size: 13px;
+  color: var(--orange);
+  margin-bottom: 8px;
+}
+.timeline-item p {
+  color: #b8b8b8;
+  font-size: 14px;
+}
+
+/* 下载简历按钮（页内） */
+.about-cta {
+  text-align: center;
+  margin-top: 60px;
+}
+
+@media (max-width: 768px) {
+  .about-inner { padding: 0 20px; }
+  .about-layout { grid-template-columns: 1fr; gap: 40px; }
+  .about-figure { position: static; }
+  .about-title { font-size: 26px; }
+  .about-subtitle { margin-bottom: 50px; font-size: 13px; }
+  .avatar-box { max-width: 340px; margin-left: auto; margin-right: auto; }
+}
+@media (max-width: 480px) {
+  .about-page { padding-top: 100px; }
+  .about-title { font-size: 24px; }
+  .about-text h3 { font-size: 20px; }
+  .skill-tags { gap: 8px; }
+  .skill-tag { padding: 6px 14px; font-size: 12px; }
+}

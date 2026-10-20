@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>莱芙汀 让每一朵玫瑰绽放</title>
+<style>
+/* ========== 视觉系统 ========== */
+:root {
+  --color-canvas: #3E1E2E;
+  --color-surface: #4A2838;
+  --color-surface-elevated: #553040;
+  --color-text-primary: #F5EDE4;
+  --color-text-secondary: #BFA89A;
+  --color-text-muted: #8A7268;
+  --color-gold: #C9A96E;
+  --color-gold-light: #E8D5B0;
+  --color-rose: #8B3A4A;
+  --color-rose-light: #C4627A;
+  --color-rose-petal: rgba(196,98,122,0.12);
+  --color-divider: rgba(201,169,110,0.18);
+
+  --font-display: ui-serif, Georgia, "Noto Serif SC", "Source Han Serif SC", "STSong", serif;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+
+  --space-xs: clamp(0.25rem, 0.5vw, 0.5rem);
+  --space-sm: clamp(0.5rem, 1vw, 1rem);
+  --space-md: clamp(1rem, 2vw, 2rem);
+  --space-lg: clamp(2rem, 4vw, 4rem);
+  --space-xl: clamp(3rem, 6vw, 6rem);
+  --space-2xl: clamp(5rem, 10vw, 10rem);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --content-max: min(1200px, calc(100vw - 2 * var(--space-md)));
+}
+
+/* ========== 基础重置 ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ========== 玫瑰花瓣飘落动画 ========== */
+.petals-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  top: -60px;
+  width: 20px;
+  height: 24px;
+  opacity: 0;
+  animation: petalFall linear infinite;
+}
+
+.petal svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes petalFall {
+  0% {
+    opacity: 0;
+    transform: translateX(0) rotate(0deg) scale(0.8);
+  }
+  5% { opacity: 0.6; }
+  50% {
+    opacity: 0.4;
+    transform: translateX(80px) rotate(180deg) scale(1);
+  }
+  95% { opacity: 0.15; }
+  100% {
+    opacity: 0;
+    transform: translateX(-30px) rotate(360deg) scale(0.6);
+    top: 105vh;
+  }
+}
+
+/* ========== Hero 首屏 ========== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139,58,74,0.15) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 30% 70%, rgba(201,169,110,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 70% 20%, rgba(196,98,122,0.08) 0%, transparent 50%);
+  z-index: -1;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 0.4em 0;
+  font-size: 0.85rem;
+  color: var(--color-gold);
+  letter-spacing: 0.15em;
+  text-align: center;
+  margin-bottom: var(--space-md);
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--color-text-primary);
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-sm);
+}
+
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--color-gold), var(--color-gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.2em;
+  margin-bottom: var(--space-lg);
+}
+
+.hero-image {
+  position: relative;
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.hero-image::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, var(--color-gold), transparent 40%, transparent 60%, var(--color-gold));
+  border-radius: var(--radius-md);
+  opacity: 0.4;
+  z-index: -1;
+}
+
+.hero-image video {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-divider);
+}
+
+.hero-scroll-hint {
+  position: absolute;
+  bottom: var(--space-md);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+
+.hero-scroll-hint .arrow {
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(to bottom, var(--color-gold), transparent);
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(6px); }
+}
+
+/* ========== 通用 Section ========== */
+.section {
+  position: relative;
+  z-index: 2;
+  padding: var(--space-xl) var(--space-md);
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.section-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: var(--color-gold);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-xs);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.5vw, 2.6rem);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+}
+
+.section-divider {
+  display: none;
+}
+
+/* ========== 视频展示区 ========== */
+.video-section {
+  background:
+    linear-gradient(180deg, var(--color-canvas) 0%, var(--color-surface) 30%, var(--color-surface) 70%, var(--color-canvas) 100%);
+}
+
+.video-grid {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.video-item {
+  position: relative;
+}
+
+.video-item-label {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--color-gold-light);
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-sm);
+  text-align: center;
+}
+
+.video-wrapper {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-divider);
+  background: var(--color-surface-elevated);
+  aspect-ratio: 16 / 9;
+}
+
+.video-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ========== 片段展示区 ========== */
+.product-section {
+  background: var(--color-canvas);
+}
+
+.product-gallery {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.product-item {
+  position: relative;
+}
+
+.product-item-number {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, 5rem);
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-divider);
+  line-height: 1;
+  margin-bottom: var(--space-sm);
+  letter-spacing: 0.05em;
+}
+
+.product-item-frame {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-divider);
+  background: var(--color-surface);
+}
+
+.product-item-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 60px rgba(0,0,0,0.3);
+  pointer-events: none;
+}
+
+.product-item-frame video {
+  width: 100%;
+}
+
+.product-item-caption {
+  margin-top: var(--space-sm);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+/* ========== 页脚 ========== */
+.site-footer {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: var(--space-xl) var(--space-md);
+  border-top: 1px solid var(--color-divider);
+}
+
+.footer-brand {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--color-gold);
+  letter-spacing: 0.15em;
+  margin-bottom: var(--space-xs);
+}
+
+.footer-tagline {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+}
+
+/* ========== 入场动画 ========== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========== 响应式 ========== */
+@media (min-width: 768px) {
+  .video-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    min-height: auto;
+    padding-top: var(--space-lg);
+    padding-bottom: var(--space-lg);
+  }
+
+  .product-gallery {
+    gap: var(--space-lg);
+  }
+}
+
+/* ========== 打印 ========== */
+@media print {
+  .petals-container,
+  .hero-scroll-hint,
+  .reveal { display: none !important; }
+
+  body {
+    background: #fff;
+    color: #111;
+  }
+
+  .hero h1 em {
+    -webkit-text-fill-color: #8B6914;
+  }
+
+  .section { padding: 1rem 0; }
+
+  .video-wrapper { border: 1px solid #ccc; }
+}
+
+/* ========== 减弱动画 ========== */
+@media (prefers-reduced-motion: reduce) {
+  .petal { animation: none !important; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .hero-scroll-hint { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- 玫瑰花瓣飘落 -->
+<div class="petals-container" aria-hidden="true">
+  <div class="petal" style="left:5%; animation-duration:12s; animation-delay:0s;">
+    <svg viewBox="0 0 20 24" aria-hidden="true"><path d="M10 0 C14 6 18 12 10 24 C2 12 6 6 10 0Z" fill="rgba(196,98,122,0.5)"/></svg>
+  </div>
+  <div class="petal" style="left:15%; animation-duration:15s; animation-delay:3s;">
+    <svg viewBox="0 0 20 24" aria-hidden="true"><path d="M10 0 C14 6 18 12 10 24 C2 12 6 6 10 0Z" fill="rgba(201,169,110,0.35)"/></svg>
+  </div>
+  <div class="petal" style="left:28%; animation-duration:11s; animation-delay:1.5s;">
+    <svg viewBox="0 0 20 24" aria-hidden="true"><path d="M10 0 C14 6 18 12 10 24 C2 12 6 6 10 0Z" fill="rgba(196,98,122,0.4)"/></svg>
+  </div>
+  <div class="petal" style="left:42%; animation-duration:14s; animation-delay:5s;">
+    <svg viewBox="0 0 20 24" aria-hidden="true"><path d="M10 0 C14 6 18 12 10 24 C2 12 6 6 10 0Z" fill="rgba(201,169,110,0.3)"/></svg>
+  </div>
+  <div class="petal" style="left:55%; animation-duration:13s; animation-delay:2s;">
+    <svg viewBox="0 0 20 24" aria-hidden="true"><path d="M10 0 C14 6 18 12 10 24 C2 12 6 6 10 0Z" fill="rgba(196,98,122,0.45)"/></svg>
+  </div>
+  <div class="petal" style="left:68%; animation-duration:16s; animation-delay:4s;">
+    <svg viewBox="0 0 20 24" aria-hidden="true"><path d="M10 0 C14 6 18 12 10 24 C2 12 6 6 10 0Z" fill="rgba(201,169,110,0.25)"/></svg>
+  </div>
+  <div class="petal" style="left:80%; animation-duration:12s; animation-delay:6s;">
+    <svg viewBox="0 0 20 24" aria-hidden="true"><path d="M10 0 C14 6 18 12 10 24 C2 12 6 6 10 0Z" fill="rgba(196,98,122,0.35)"/></svg>
+  </div>
+  <div class="petal" style="left:92%; animation-duration:14s; animation-delay:1s;">
+    <svg viewBox="0 0 20 24" aria-hidden="true"><path d="M10 0 C14 6 18 12 10 24 C2 12 6 6 10 0Z" fill="rgba(196,98,122,0.4)"/></svg>
+  </div>
+</div>
+
+<!-- Hero 首屏 -->
+<header class="hero">
+  <div class="hero-badge reveal">LAFTING · 臻颜修护</div>
+  <h1 class="reveal">莱芙汀<br>让每一朵<em>玫瑰</em>绽放</h1>
+  <p class="hero-subtitle reveal">臻颜修护精华面霜 · 50g</p>
+  <div class="hero-image reveal">
+    <video autoplay muted loop playsinline aria-label="莱芙汀臻颜修护精华面霜首屏展示">
+      <source src="assets/hero.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="hero-scroll-hint" aria-hidden="true">
+    <span>探索更多</span>
+    <div class="arrow"></div>
+  </div>
+</header>
+
+<!-- 视频展示区 -->
+<main>
+<section class="section video-section">
+  <div class="section-header reveal">
+    <div class="section-label">Brand Film</div>
+    <h2 class="section-title">品牌影片</h2>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="video-grid">
+    <div class="video-item reveal">
+      <div class="video-item-label">TVC 广告片</div>
+      <div class="video-wrapper">
+        <video controls preload="none" poster="assets/tvc_cover.jpg">
+          <source src="assets/tvc_ad_720p.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+
+    <div class="video-item reveal">
+      <div class="video-item-label">动效成片</div>
+      <div class="video-wrapper">
+        <video controls preload="none" poster="assets/motion_cover.jpg">
+          <source src="assets/motion_video.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 片段展示区 -->
+<section class="section product-section">
+  <div class="section-header reveal">
+    <div class="section-label">Clips Showcase</div>
+    <h2 class="section-title">片段展示</h2>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="product-gallery">
+    <div class="product-item reveal">
+      <div class="product-item-number">01</div>
+      <div class="product-item-frame">
+        <video autoplay muted loop playsinline preload="none" aria-label="莱芙汀面霜产品展示一">
+          <source data-src="assets/clip1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="product-item-caption">精华质地 · 轻触即融</div>
+    </div>
+
+    <div class="product-item reveal">
+      <div class="product-item-number">02</div>
+      <div class="product-item-frame">
+        <video autoplay muted loop playsinline preload="none" aria-label="莱芙汀面霜产品展示二">
+          <source data-src="assets/clip2.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="product-item-caption">修护力量 · 深层滋养</div>
+    </div>
+
+    <div class="product-item reveal">
+      <div class="product-item-number">03</div>
+      <div class="product-item-frame">
+        <video autoplay muted loop playsinline preload="none" aria-label="莱芙汀面霜产品展示三">
+          <source data-src="assets/clip3.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="product-item-caption">玫瑰绽放 · 自信盛放</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- 页脚 -->
+<footer class="site-footer">
+  <div class="footer-brand">LAFTING 莱芙汀</div>
+  <div class="footer-tagline">让每一朵玫瑰都按自己的节奏肆意绽放</div>
+</footer>
+
+<script>
+// 视频懒加载：滚动到可视区域才加载视频
+(function() {
+  var lazyVideos = document.querySelectorAll('video source[data-src]');
+  if (!lazyVideos.length) return;
+
+  function loadVideo(video) {
+    var sources = video.querySelectorAll('source[data-src]');
+    sources.forEach(function(src) {
+      src.src = src.getAttribute('data-src');
+      src.removeAttribute('data-src');
+    });
+    video.load();
+    // autoplay 的视频在加载后尝试播放
+    if (video.hasAttribute('autoplay')) {
+      var playPromise = video.play();
+      if (playPromise) {
+        playPromise.catch(function() { /* 浏览器限制时静默失败 */ });
+      }
+    }
+  }
+
+  if (!('IntersectionObserver' in window)) {
+    // 不支持 IntersectionObserver 时全部加载
+    lazyVideos.forEach(function(src) {
+      loadVideo(src.closest('video'));
+    });
+    return;
+  }
+
+  var videoObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var video = entry.target;
+        loadVideo(video);
+        videoObserver.unobserve(video);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '200px 0px' }); // 提前200px开始加载
+
+  lazyVideos.forEach(function(src) {
+    videoObserver.observe(src.closest('video'));
+  });
+})();
+
+// 入场动画：Intersection Observer
+(function() {
+  var els = document.querySelectorAll('.reveal');
+  if (!els.length) return;
+
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(function(el) { el.classList.add('visible'); });
+    return;
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  els.forEach(function(el) { observer.observe(el); });
+})();
+
+// 页内锚点平滑滚动
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var id = this.getAttribute('href').slice(1);
+    var target = document.getElementById(id);
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

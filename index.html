@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>沈奕旸 YOUNG — 视频创作作品集</title>
+  <meta name="description" content="视觉传达设计毕业生，主攻视频创作方向。用视频和AI，把脑海里的画面搬进现实。"/>
+  <link rel="preconnect" href="https://1710287362-cpu.github.io"/>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
+  <link rel="stylesheet" href="./styles/base.css?v=20261019"/>
+  <link rel="stylesheet" href="./styles/home.css?v=20261019"/>
+  <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;Y&lt;/text&gt;&lt;/svg&gt;"/>
+</head>
+<body class="page-home">
+
+  <!-- ========== 导航栏 ========== -->
+  <nav class="site-nav" id="siteNav">
+    <div class="nav-inner">
+      <a class="brand" href="./index.html">
+        <span class="cn">沈奕旸</span>
+        <span class="sep"></span>
+        <span class="en">YOUNG</span>
+      </a>
+      <div class="nav-right">
+        <a class="nav-link" href="./works.html">作品集</a>
+        <a class="nav-link" href="./about.html">关于我</a>
+        <button class="btn-resume" id="btnResume">下载简历</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== 首屏 ========== -->
+  <section class="hero" id="hero">
+    <!-- 上半区：视频 -->
+    <div class="hero-top">
+      <video id="heroVideo" src="./assets/videos/home.mp4" autoplay="" muted="" loop="" playsinline="" webkit-playsinline="" x5-playsinline=""></video>
+      <!-- 视频控制按钮：右下角 -->
+      <div class="video-controls">
+        <button class="video-ctrl-btn" id="btnPlayPause" aria-label="播放/暂停">
+          <svg class="ctrl-icon icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="ctrl-icon icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+        </button>
+        <button class="video-ctrl-btn" id="btnMute" aria-label="静音/取消静音">
+          <svg class="ctrl-icon icon-vol-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+          <svg class="ctrl-icon icon-vol-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 下半区：内容（居中容器 + 左对齐，容器宽与导航一致） -->
+    <div class="hero-bottom">
+      <div class="hero-inner">
+        <div class="hero-name-cn">沈奕旸</div>
+        <div class="hero-name-en">YOUNG</div>
+        <div class="hero-role">视觉传达设计23级毕业生 &nbsp;&nbsp; 主攻视频创作方向</div>
+        <p class="hero-bio">
+          我喜欢把脑海里那些还没被定义的画面，变成可以播放的东西。AI 是我实现想法的工具——它不替代创意，只负责缩短想法落地的距离。<br/>
+          每一段视频都是一次把不可见的东西变得可见的尝试。我的目标是让每一个想法从构思到成片都不被辜负。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 精选项目 ========== -->
+  <section class="projects-section" id="projects">
+    <div class="section-header">
+      <h2 class="section-title">精选项目</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="projects-grid" id="projectsGrid">
+      <div class="project-card" data-link="./external/lost-stars-show/index.html" data-title="迷失的星星 · 书本展示网站">
+        <img class="project-thumb" src="./assets/images/lost-stars-cover.jpg" alt="《迷失的星星》封面"/>
+        <div class="project-overlay">
+          <div class="project-name">迷失的星星</div>
+          <div class="project-tag">创意短片</div>
+          <div class="project-hint">查看完整项目 ↗</div>
+        </div>
+      </div>
+      <div class="project-card" data-link="./external/lafting-site/index.html" data-title="莱福汀 LAFTING · 品牌展示站">
+        <img class="project-thumb" src="./assets/images/lafting-cover.jpg" alt="《莱福汀面霜TVC》封面"/>
+        <div class="project-overlay">
+          <div class="project-name">莱福汀面霜TVC</div>
+          <div class="project-tag">创意广告</div>
+          <div class="project-hint">查看完整项目 ↗</div>
+        </div>
+      </div>
+      <div class="project-card" data-video="">
+        <div class="project-thumb" style="background:#151515;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:15px;">待上传</div>
+        <div class="project-overlay">
+          <div class="project-name">视频创作</div>
+          <div class="project-tag">待上传</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 底部联系方式 ========== -->
+  <footer class="site-footer">
+    <div class="footer-contact">
+      <div class="contact-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+        <span>1710287362@qq.com</span>
+      </div>
+      <div class="contact-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        <span>15057175870</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== 下载简历弹窗 ========== -->
+  <div class="modal-overlay" id="resumeModal">
+    <div class="modal-box">
+      <h3>下载简历</h3>
+      <p>简历正在上传中，完成后即可下载。<br/>你也可以直接通过邮件联系我。</p>
+      <div class="modal-actions">
+        <a class="modal-btn download" href="mailto:1710287362@qq.com">邮件联系</a>
+        <button class="modal-btn cancel" id="closeModal">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 项目视频弹窗 ========== -->
+  <div class="video-modal" id="videoModal">
+    <button class="video-modal-close" id="closeVideoModal">✕</button>
+    <video id="modalVideo" controls="" playsinline="" webkit-playsinline="" x5-playsinline=""></video>
+  </div>
+
+  <!-- ========== 站内网站预览（沉浸式打开外部链接） ========== -->
+  <div class="site-viewer" id="siteViewer">
+    <div class="site-viewer-bar">
+      <button class="site-viewer-back" id="siteViewerBack">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        返回作品集
+      </button>
+      <div class="site-viewer-title" id="siteViewerTitle"></div>
+      <button class="site-viewer-newtab" id="siteViewerNewTab">在新标签页打开</button>
+    </div>
+    <div class="site-viewer-loading" id="siteViewerLoading">
+      <div class="spinner"></div>
+    </div>
+    <iframe id="siteFrame" src="" title="项目网站预览"></iframe>
+  </div>
+
+  <script src="./scripts/main.js?v=20261019"></script>
+
+</body></html>

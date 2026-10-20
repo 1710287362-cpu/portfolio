@@ -1,0 +1,665 @@
+/* ============ 《迷失的星星》翻书展示 ============ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #16100b;
+}
+
+.desk {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(120% 90% at 50% 30%, #3a2c1e 0%, #241a10 48%, #120c07 100%);
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(90% 80% at 50% 45%, transparent 55%, rgba(0,0,0,.55) 100%);
+}
+
+/* ---------- 3D 场景 ---------- */
+
+.scene {
+  position: relative;
+  perspective: 2000px;
+  perspective-origin: 50% 45%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.book {
+  position: relative;
+  /* 摊开书页比例 1997:1324 */
+  width: min(88vw, calc((100vh - 150px) * 1.508));
+  aspect-ratio: 1997 / 1324;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---------- 摊开的书页（底层） ---------- */
+
+.spread-base {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  will-change: opacity, transform, filter;
+}
+
+.spread-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* 跨页内容区：按检测出的装饰边框内侧定位（百分比内边距），内容不超出书页 */
+.content {
+  position: absolute;
+  left: 9.36%;
+  top: 5.44%;
+  right: 9.26%;
+  bottom: 7.25%;
+  overflow: hidden;
+}
+
+.page-content {
+  position: absolute;
+  inset: 0;
+}
+
+.page-content video, .page-content img {
+  width: 100%;
+  height: 100%;
+}
+
+.page-content video {
+  object-fit: contain;   /* 完整显示，不裁切 */
+  display: block;
+  pointer-events: none;
+  background: transparent;
+  /* 正片叠底，让视频像印在书页纸面上（与图片页一致） */
+  mix-blend-mode: multiply;
+}
+
+.page-content img {
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  /* 透明底图片正片叠底，融入书页纸面 */
+  mix-blend-mode: multiply;
+}
+
+/* 书页阴影层（翻开/翻页过程中提供明暗变化） */
+.page-shade {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: rgba(8, 4, 0, 0.55);
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* ---------- 翻页叶片：右半页绕书脊向左翻 ---------- */
+
+.leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;   /* 旋转轴 = 书脊（书的中线） */
+  transform-style: preserve-3d;
+  visibility: hidden;
+  will-change: transform;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.leaf-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.leaf-back {
+  transform: rotateY(180deg);      /* 背面预先翻转，翻到左侧时内容正向显示 */
+}
+
+/* 叶片纸面：单页纸张贴图（蒙版抠出，封皮透明），翻页只翻一张纸 */
+.leaf-paper {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.leaf-front .leaf-paper { background-image: url("assets/sheet_right.webp?v=3"); }
+.leaf-back  .leaf-paper { background-image: url("assets/sheet_left.webp?v=3"); }
+
+/* 叶片内容视图：宽=整书宽，正面右移显示右半，背面显示左半 */
+.leaf-view {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 200%;
+}
+.leaf-front .leaf-view { left: -100%; }
+.leaf-back  .leaf-view { left: 0; }
+
+/* 叶片上的内容与底层内容区同一坐标系（相对整书宽） */
+.leaf-view .page-content {
+  position: absolute;
+  left: 9.36%;
+  right: 9.26%;
+  top: 5.44%;
+  bottom: 7.25%;
+}
+
+/* ---------- 半页遮盖层：留住要晚切换的半页（另一侧先露出目标页） ---------- */
+.half-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+  z-index: 2;              /* 高于底层内容、低于叶片 */
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+.half-overlay.ov-left  { left: 0; }
+.half-overlay.ov-right { right: 0; }
+/* 整页遮盖：翻页全程左右两半都盖住（当前页定格），70% 时统一切换 */
+.half-overlay.ov-full { left: 0; width: 100%; }
+.half-overlay.ov-full .ov-paper { background-image: url("assets/pages_trim.webp"); }
+.half-overlay.ov-full .ov-view { left: 0; width: 100%; }
+/* 遮盖层的纸面底衬：透明底插画正片叠底时垫住纸色，不透出底层新页 */
+.half-overlay .ov-paper {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.half-overlay.ov-left  .ov-paper { background-image: url("assets/sheet_left.webp?v=3"); }
+.half-overlay.ov-right .ov-paper { background-image: url("assets/sheet_right.webp?v=3"); }
+.half-overlay .ov-view {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 200%;             /* 视图宽=整书宽，与底层同一坐标系 */
+}
+.half-overlay.ov-left  .ov-view { left: 0; }        /* 显示整书左半 */
+.half-overlay.ov-right .ov-view { left: -100%; }   /* 显示整书右半 */
+.half-overlay .page-content {
+  position: absolute;
+  left: 9.36%;
+  right: 9.26%;
+  top: 5.44%;
+  bottom: 7.25%;
+}
+
+/* 叶片弧度阴影 */
+.leaf-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+.leaf-front .leaf-shade {
+  background: linear-gradient(to left, rgba(0,0,0,.38) 0%, rgba(0,0,0,.08) 35%, transparent 60%);
+}
+.leaf-back .leaf-shade {
+  background: linear-gradient(to right, rgba(0,0,0,.38) 0%, rgba(0,0,0,.08) 35%, transparent 60%);
+}
+
+/* ---------- 封面（3D 翻转层） ---------- */
+
+.cover-flip {
+  position: absolute;
+  height: 84%;
+  top: 8%;
+  left: 50%;
+  aspect-ratio: 861 / 1119;
+  transform-origin: left center;
+  transform: translateX(-50%);
+  z-index: 5;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity, filter;
+  filter: drop-shadow(0 18px 28px rgba(0,0,0,.55));
+}
+
+.cover-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* 翻动时封面背光阴影：转角越大越暗 */
+.cover-shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .6);
+  opacity: 0;
+  pointer-events: none;
+  border-radius: 6px;
+}
+
+/* ---------- 页码指示点 ---------- */
+
+.dots {
+  display: flex;
+  gap: 10px;
+  opacity: 0;
+  transition: opacity .6s ease;
+  pointer-events: none;
+}
+
+.dots.show { opacity: .9; }
+
+.dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #6b5a3e;
+  transition: background .3s ease, transform .3s ease;
+}
+
+.dots i.on {
+  background: #cbb489;
+  transform: scale(1.35);
+}
+
+/* ---------- 提示文字 ---------- */
+
+.hint {
+  color: #cbb489;
+  font-size: 14px;
+  letter-spacing: .35em;
+  text-indent: .35em;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  opacity: .85;
+  transition: opacity .8s ease;
+  pointer-events: none;
+}
+
+.hint.hidden { opacity: 0; }
+
+/* ---------- 声音开关（3/4/5/6 全局互通） ---------- */
+#muteBtn {
+  position: fixed;
+  right: 26px;
+  bottom: 24px;
+  z-index: 60;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .28);
+  background: rgba(20, 14, 8, .48);
+  color: #e8dcc0;
+  font-size: 21px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .35s ease, background .25s ease, transform .15s ease;
+}
+#muteBtn.show { opacity: .78; visibility: visible; }
+#muteBtn.show:hover { opacity: .96; background: rgba(40, 28, 16, .6); }
+#muteBtn:active { transform: scale(.93); }
+
+/* ---------- 渐黑过渡层（5 的结尾 → 全屏 6） ---------- */
+#fadeBlack {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 1.5s ease;
+}
+#fadeBlack.on { opacity: 1; visibility: visible; }
+
+/* ---------- 全屏视频 6 ---------- */
+#stage6 {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: #000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#stage6.show { display: flex; }
+#stage6 video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+/* ---------- 完整视频（全屏） ---------- */
+#stageFull {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: #000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#stageFull.show { display: flex; }
+#stageFull video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+/* 全屏加载中转圈提示 */
+.fs-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.fs-loading.show { display: flex; }
+.fs-loading i {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid rgba(232, 220, 192, .25);
+  border-top-color: #e8dcc0;
+  animation: fs-spin .9s linear infinite;
+}
+@keyframes fs-spin { to { transform: rotate(360deg); } }
+
+/* 书页视频缓冲加载环（移动端弱网时提示正在拉数据，避免看起来像坏掉） */
+.page-loading {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  display: none;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  border: 3px solid rgba(232, 220, 192, .25);
+  border-top-color: #e8dcc0;
+  animation: fs-spin .9s linear infinite;
+  pointer-events: none;
+}
+.page-loading.show { display: block; }
+
+/* ---------- 完整视频播放控制条（B 站式） ---------- */
+#fullCtl {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 18px 12px;
+  background: linear-gradient(to top, rgba(0, 0, 0, .78), rgba(0, 0, 0, 0));
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s ease, visibility .3s ease;
+}
+#fullCtl.show { opacity: 1; visibility: visible; }
+.fctl-btn {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #e8dcc0;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.fctl-btn:hover { background: rgba(255, 255, 255, .12); }
+.fctl-time {
+  flex: none;
+  color: #e8dcc0;
+  font-size: 12px;
+  font-family: Consolas, "Courier New", monospace;
+  opacity: .85;
+  min-width: 92px;
+  text-align: center;
+}
+.fprog {
+  position: relative;
+  flex: 1;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.fprog::before {           /* 轨道底 */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, .22);
+}
+.fprog-buf {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, .38);
+  width: 0;
+}
+.fprog-fill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: #d8b97a;
+  width: 0;
+}
+.fprog-knob {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  margin: -6.5px 0 0 -6.5px;
+  border-radius: 50%;
+  background: #e8dcc0;
+  box-shadow: 0 0 4px rgba(0, 0, 0, .6);
+  transform: scale(.6);
+  opacity: .7;
+  transition: transform .15s ease, opacity .15s ease;
+}
+.fprog:hover .fprog-knob,
+.fprog:active .fprog-knob { transform: scale(1); opacity: 1; }
+
+/* ---------- 全屏退出按钮 ---------- */
+.fs-exit {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  z-index: 4;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .25);
+  background: rgba(20, 14, 8, .45);
+  color: #e8dcc0;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: .65;
+  transition: opacity .25s ease, background .25s ease, transform .15s ease;
+}
+.fs-exit:hover { opacity: .95; background: rgba(40, 28, 16, .6); }
+.fs-exit:active { transform: scale(.92); }
+
+/* ---------- 底部快速翻页条 ---------- */
+#navBar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 12px;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  border-radius: 14px;
+  background: rgba(16, 11, 6, .55);
+  border: 1px solid rgba(232, 220, 192, .18);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .35s ease, visibility .35s ease;
+  max-width: 94vw;
+}
+#navBar.show { opacity: 1; visibility: visible; }
+#fullEntryOpen {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 70px;
+  z-index: 25;
+  padding: 9px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 220, 192, .35);
+  background: rgba(16, 11, 6, .6);
+  color: #e8dcc0;
+  font-size: 14px;
+  letter-spacing: .05em;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s ease, visibility .3s, background .2s ease;
+}
+#fullEntryOpen.show { opacity: 1; visibility: visible; }
+#fullEntryOpen:hover { background: rgba(60, 44, 24, .8); }
+#navBar .nav-arrow {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 220, 192, .3);
+  background: rgba(20, 14, 8, .5);
+  color: #e8dcc0;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+#navBar .nav-arrow:hover { background: rgba(60, 44, 24, .75); }
+#navThumbs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  max-width: 66vw;
+  padding: 2px;
+  scrollbar-width: thin;
+}
+#navThumbs img {
+  flex: none;
+  width: 46px;
+  height: 31px;
+  object-fit: cover;
+  border-radius: 4px;
+  opacity: .55;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity .2s ease, border-color .2s ease;
+}
+#navThumbs img:hover { opacity: .9; }
+#navThumbs img.on { opacity: 1; border-color: #d8b97a; }
+
+/* ---------- 全屏视频播完后的按钮层 ---------- */
+.video-end-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, .35);
+}
+.video-end-overlay.show { display: flex; }
+.pill-btn {
+  padding: 14px 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 220, 192, .5);
+  background: rgba(20, 14, 8, .68);
+  color: #e8dcc0;
+  font-size: 17px;
+  letter-spacing: .15em;
+  text-indent: .15em;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  cursor: pointer;
+  transition: background .25s ease, transform .15s ease;
+}
+.pill-btn:hover { background: rgba(62, 45, 24, .85); }
+.pill-btn:active { transform: scale(.96); }
+
+/* ---------- 封面入口：直接观看完整视频 ---------- */
+#fullEntry {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 7%;
+  z-index: 30;
+  padding: 12px 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 220, 192, .45);
+  background: rgba(20, 14, 8, .5);
+  color: #e8dcc0;
+  font-size: 15px;
+  letter-spacing: .2em;
+  text-indent: .2em;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .4s ease, background .25s ease;
+}
+#fullEntry.show { opacity: .85; visibility: visible; }
+#fullEntry.show:hover { opacity: 1; background: rgba(50, 36, 20, .65); }
+#fullEntry:active { transform: translateX(-50%) scale(.96); }
+
+/* 小屏适配 */
+@media (max-width: 640px) {
+  .book { width: min(94vw, calc((100vh - 130px) * 1.508)); }
+  .hint { font-size: 12px; letter-spacing: .25em; }
+}

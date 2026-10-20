@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="关于我 - 沈奕旸 YOUNG" />
+    <title>关于我 | 沈奕旸 YOUNG</title>
+    <link rel="stylesheet" href="./styles/base.css" />
+    <link rel="stylesheet" href="./styles/about.css" />
+  </head>
+  <body>
+    <!-- 顶部导航（深色页面） -->
+    <nav class="site-nav on-dark">
+      <div class="nav-inner">
+        <a class="brand" href="./index.html">
+          <span class="cn">沈奕旸</span>
+          <span class="sep"></span>
+          <span class="en">YOUNG</span>
+        </a>
+        <div class="nav-right">
+          <a class="nav-link" href="./works.html">作品集</a>
+          <a class="nav-link active" href="./about.html">关于我</a>
+          <button class="btn-resume" id="btnResume">下载简历</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="page about-page">
+      <div class="about-inner">
+        <h1 class="about-title">关于我</h1>
+        <p class="about-subtitle">沈奕旸 · YOUNG · 视觉传达设计 · 视频创作</p>
+
+        <div class="about-layout">
+          <!-- 左侧：照片 + 基本信息 -->
+          <aside class="about-figure">
+            <div class="avatar-box">
+              <!-- 个人照片尚未上传，留空模板 -->
+              <div class="avatar-placeholder">个人照片</div>
+            </div>
+            <div class="info-card">
+              <h4>基本信息</h4>
+              <div class="info-row"><span class="label">姓名</span><span class="value">沈奕旸</span></div>
+              <div class="info-row"><span class="label">英文名</span><span class="value">YOUNG</span></div>
+              <div class="info-row"><span class="label">专业</span><span class="value">视觉传达设计</span></div>
+              <div class="info-row"><span class="label">方向</span><span class="value">视频创作</span></div>
+              <div class="info-row"><span class="label">邮箱</span><span class="value">1710287362@QQ.COM</span></div>
+              <div class="info-row"><span class="label">电话</span><span class="value">15057175870</span></div>
+            </div>
+          </aside>
+
+          <!-- 右侧：详细介绍 -->
+          <div class="about-text">
+            <h3><span class="bar"></span>关于我</h3>
+            <p>
+              我是视觉传达设计专业 23 级毕业生，主攻视频创作方向。我相信好的影像不只记录画面，
+              更传递情绪与想法。在作品集中，我尝试把脑海中还未被定义的画面，逐步变成可以被播放的故事。
+            </p>
+
+            <h3><span class="bar"></span>专业能力</h3>
+            <div class="skill-tags">
+              <span class="skill-tag">视频剪辑</span>
+              <span class="skill-tag">影视调色</span>
+              <span class="skill-tag">平面设计</span>
+              <span class="skill-tag">AI 工具</span>
+              <span class="skill-tag">视觉传达</span>
+              <span class="skill-tag">故事脚本</span>
+            </div>
+
+            <h3><span class="bar"></span>教育背景</h3>
+            <div class="timeline-item">
+              <h5>视觉传达设计 · 本科</h5>
+              <div class="time">2023 级</div>
+              <p>主修视觉传达设计，系统学习平面构成、色彩构成、版式与影像设计，重点关注视频创作方向。</p>
+            </div>
+
+            <h3><span class="bar"></span>创作理念</h3>
+            <p>
+              AI 是我实现想法的工具——它不替代创意，只负责缩短想法落地的距离。每一段视频都是一次把
+              不可见的东西变得可见的尝试。我的目标是让每一个想法从构思到成片都不被辜负。
+            </p>
+
+            <h3><span class="bar"></span>联系方式</h3>
+            <p>欢迎合作或交流，可以通过上方基本信息中的邮箱或电话联系我。</p>
+          </div>
+        </div>
+
+        <!-- 页面底部下载按钮 -->
+        <div class="about-cta">
+          <button id="btn-open-resume" class="btn-resume">下载简历</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- 下载简历弹窗 -->
+    <div class="modal-overlay" id="resumeModal">
+      <div class="modal-box">
+        <h3>下载简历</h3>
+        <p>选择您需要的简历文件格式进行下载。</p>
+        <div class="modal-actions">
+          <button class="modal-btn cancel" id="closeModal">取消</button>
+          <button class="modal-btn download" id="do-download">下载 PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./scripts/main.js"></script>
+  </body>
+</html>
