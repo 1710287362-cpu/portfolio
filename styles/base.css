@@ -359,6 +359,8 @@ html, body {
 .project-viewer-body video {
   width: 100%;
   max-width: 1080px;
+  max-height: 82vh;
+  object-fit: contain;
   border-radius: 10px;
   background: #000;
   outline: none;
