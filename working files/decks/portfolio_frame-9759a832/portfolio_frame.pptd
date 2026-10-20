@@ -1,0 +1,38 @@
+version: v2
+title: 大畅 · 作品集框架（封面 / 简历 / 封底 · 横版）
+size: [1920, 1080]
+customFonts:
+  - family: Archivo Black
+    src: "https://fonts.googleapis.com/css2?family=Archivo+Black"
+  - family: JetBrains Mono
+    src: "https://fonts.googleapis.com/css2?family=JetBrains+Mono"
+theme:
+  colors:
+    ink: "#14181F"
+    ink2: "#181D26"
+    card: "#1B222D"
+    line: "#2B3542"
+    white: "#FFFFFF"
+    soft: "#C7CDD6"
+    grey: "#7C8592"
+    gold: "#E8A33D"
+    goldDim: "#B98332"
+    blue: "#2F5BFF"
+    orange: "#E8641C"
+    pink: "#E4688E"
+    cinnabar: "#A8452F"
+    yellow: "#FFD100"
+  textStyles:
+    mono:
+      fontSize: 20
+      fontFamily: JetBrains Mono
+      color: "$grey"
+      letterSpacing: 3
+    body:
+      fontSize: 24
+      color: "$soft"
+      lineHeight: 1.7
+pages:
+  - pages/1_cover.page
+  - pages/2_about.page
+  - pages/3_backcover.page

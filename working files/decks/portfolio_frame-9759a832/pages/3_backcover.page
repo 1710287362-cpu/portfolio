@@ -1,0 +1,154 @@
+pageType: final
+background:
+  type: gradient
+  gradientType: radial
+  stops:
+    - {position: 0, color: "#1A2029"}
+    - {position: 1, color: "#12161D"}
+elements:
+  # 右侧六色条
+  - elementId: strip-1
+    elementType: shape
+    bounds: [1912, 0, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: strip-2
+    elementType: shape
+    bounds: [1912, 180, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$blue"}
+  - elementId: strip-3
+    elementType: shape
+    bounds: [1912, 360, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$orange"}
+  - elementId: strip-4
+    elementType: shape
+    bounds: [1912, 540, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$pink"}
+  - elementId: strip-5
+    elementType: shape
+    bounds: [1912, 720, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$cinnabar"}
+  - elementId: strip-6
+    elementType: shape
+    bounds: [1912, 900, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$yellow"}
+
+  # 顶部
+  - elementId: top-left
+    elementType: text
+    bounds: [64, 52, 700, 34]
+    content:
+      style: "$mono"
+      fontSize: 22
+      wrap: false
+      align: [left, middle]
+      text: "DACHANG · PORTFOLIO"
+  - elementId: top-right
+    elementType: text
+    bounds: [1300, 52, 556, 34]
+    content:
+      style: "$mono"
+      fontSize: 22
+      wrap: false
+      align: [right, middle]
+      text: "THE END"
+  - elementId: top-rule
+    elementType: shape
+    bounds: [64, 104, 1792, 2]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+
+  # 左：致谢
+  - elementId: thanks-sq
+    elementType: shape
+    bounds: [160, 266, 16, 16]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: thanks-en
+    elementType: text
+    bounds: [160, 306, 700, 40]
+    content:
+      style: "$mono"
+      fontSize: 24
+      color: "$gold"
+      wrap: false
+      align: [left, middle]
+      text: "THANKS FOR WATCHING"
+  - elementId: thanks-cn
+    elementType: text
+    bounds: [150, 360, 880, 180]
+    content:
+      fontSize: 140
+      bold: true
+      color: "$white"
+      letterSpacing: 12
+      wrap: false
+      align: [left, middle]
+      text: "谢谢观看"
+  - elementId: thanks-star
+    elementType: shape
+    bounds: [772, 428, 52, 52]
+    shapeName: star5
+    fill: {type: solid, color: "$gold"}
+  - elementId: ending
+    elementType: text
+    bounds: [160, 590, 800, 44]
+    content:
+      fontSize: 28
+      color: "$soft"
+      wrap: false
+      align: [left, middle]
+      text: "把下一段故事，留给下一次相遇。"
+
+  # 右：联系卡
+  - elementId: contact-card
+    elementType: shape
+    bounds: [1080, 250, 700, 420]
+    shapeName: rect
+    fill: {type: solid, color: "$card"}
+    border: {style: solid, width: 1, color: "$line"}
+  - elementId: contact-bar
+    elementType: shape
+    bounds: [1080, 250, 700, 8]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: contact-label
+    elementType: text
+    bounds: [1128, 290, 500, 36]
+    content:
+      style: "$mono"
+      fontSize: 22
+      wrap: false
+      align: [left, middle]
+      text: "STAY IN TOUCH / 保持联系"
+  - elementId: contact-body
+    elementType: text
+    bounds: [1128, 352, 600, 260]
+    content:
+      lineHeight: 1.6
+      align: [left, top]
+      text: |
+        <p><span style="font-size:19px; color:$grey; font-family:JetBrains Mono">EMAIL　</span><span style="font-size:23px; color:$white">your-email@example.com（占位）</span></p>
+        <p style="margin-top:14px"><span style="font-size:19px; color:$grey; font-family:JetBrains Mono">WECHAT　</span><span style="font-size:23px; color:$white">your-wechat（占位）</span></p>
+        <p style="margin-top:14px"><span style="font-size:19px; color:$grey; font-family:JetBrains Mono">GITHUB　</span><span style="font-size:23px; color:$white">1710287362-cpu.github.io</span></p>
+
+  # 底部
+  - elementId: bottom-rule
+    elementType: shape
+    bounds: [64, 988, 1792, 2]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+  - elementId: bottom-note
+    elementType: text
+    bounds: [64, 1006, 1792, 36]
+    content:
+      style: "$mono"
+      fontSize: 20
+      wrap: false
+      align: [center, middle]
+      text: "© DACHANG · PORTFOLIO"

@@ -1,0 +1,279 @@
+pageType: cover
+background:
+  type: gradient
+  gradientType: radial
+  stops:
+    - {position: 0, color: "#1A2029"}
+    - {position: 1, color: "#12161D"}
+elements:
+  # 左侧六色条
+  - elementId: strip-1
+    elementType: shape
+    bounds: [0, 0, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: strip-2
+    elementType: shape
+    bounds: [0, 180, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$blue"}
+  - elementId: strip-3
+    elementType: shape
+    bounds: [0, 360, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$orange"}
+  - elementId: strip-4
+    elementType: shape
+    bounds: [0, 540, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$pink"}
+  - elementId: strip-5
+    elementType: shape
+    bounds: [0, 720, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$cinnabar"}
+  - elementId: strip-6
+    elementType: shape
+    bounds: [0, 900, 8, 180]
+    shapeName: rect
+    fill: {type: solid, color: "$yellow"}
+
+  # 顶部
+  - elementId: top-left
+    elementType: text
+    bounds: [64, 52, 700, 34]
+    content:
+      style: "$mono"
+      fontSize: 22
+      wrap: false
+      align: [left, middle]
+      text: "DACHANG · PORTFOLIO"
+  - elementId: top-right
+    elementType: text
+    bounds: [1300, 52, 556, 34]
+    content:
+      style: "$mono"
+      fontSize: 22
+      wrap: false
+      align: [right, middle]
+      text: "AI FILM · VISUAL · FRONT-END"
+  - elementId: top-rule
+    elementType: shape
+    bounds: [64, 104, 1792, 2]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+
+  # 左：标题区
+  - elementId: kicker-sq
+    elementType: shape
+    bounds: [96, 196, 14, 14]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: kicker
+    elementType: text
+    bounds: [124, 184, 700, 38]
+    content:
+      style: "$mono"
+      fontSize: 24
+      color: "$gold"
+      wrap: false
+      align: [left, middle]
+      text: "SELECTED WORKS · 精选作品"
+  - elementId: title-en
+    elementType: text
+    bounds: [92, 236, 840, 110]
+    content:
+      fontFamily: "Archivo Black"
+      fontSize: 84
+      color: "$white"
+      letterSpacing: 2
+      wrap: false
+      align: [left, middle]
+      text: "PORTFOLIO"
+  - elementId: title-cn
+    elementType: text
+    bounds: [88, 352, 860, 220]
+    content:
+      fontSize: 172
+      bold: true
+      color: "$white"
+      letterSpacing: 18
+      wrap: false
+      align: [left, middle]
+      text: "作品集"
+  - elementId: title-bar
+    elementType: shape
+    bounds: [98, 598, 110, 8]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: creator-logo
+    elementType: image
+    bounds: [96, 640, 113, 52]
+    src: "media/name-logo.png"
+    fit: {mode: fill}
+  - elementId: creator-en
+    elementType: text
+    bounds: [225, 640, 400, 52]
+    content:
+      fontFamily: "JetBrains Mono"
+      fontSize: 26
+      color: "$grey"
+      wrap: false
+      align: [left, middle]
+      text: "DACHANG"
+  - elementId: roles
+    elementType: text
+    bounds: [96, 712, 840, 36]
+    content:
+      style: "$mono"
+      fontSize: 22
+      wrap: false
+      align: [left, middle]
+      text: "AI FILM DIRECTOR × VISUAL DESIGN × FRONT-END"
+
+  # 右：六项目缩略图 3×2
+  - elementId: th1
+    elementType: image
+    bounds: [960, 184, 277, 173]
+    src: "media/image-1.jpg"
+    cropShape: {shapeName: roundRect, adjustments: [6000]}
+    fit: {mode: cover}
+  - elementId: th1-tag
+    elementType: shape
+    bounds: [960, 184, 50, 30]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: th1-no
+    elementType: text
+    bounds: [960, 184, 50, 30]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, bold: true, color: "$ink", wrap: false, align: [center, middle], text: "01"}
+  - elementId: th2
+    elementType: image
+    bounds: [1253, 184, 277, 173]
+    src: "media/image-2.jpg"
+    cropShape: {shapeName: roundRect, adjustments: [6000]}
+    fit: {mode: cover}
+  - elementId: th2-tag
+    elementType: shape
+    bounds: [1253, 184, 50, 30]
+    shapeName: rect
+    fill: {type: solid, color: "$blue"}
+  - elementId: th2-no
+    elementType: text
+    bounds: [1253, 184, 50, 30]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, bold: true, color: "$white", wrap: false, align: [center, middle], text: "02"}
+  - elementId: th3
+    elementType: image
+    bounds: [1546, 184, 277, 173]
+    src: "media/image-3.jpg"
+    cropShape: {shapeName: roundRect, adjustments: [6000]}
+    fit: {mode: cover}
+  - elementId: th3-tag
+    elementType: shape
+    bounds: [1546, 184, 50, 30]
+    shapeName: rect
+    fill: {type: solid, color: "$orange"}
+  - elementId: th3-no
+    elementType: text
+    bounds: [1546, 184, 50, 30]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, bold: true, color: "$white", wrap: false, align: [center, middle], text: "03"}
+  - elementId: th4
+    elementType: image
+    bounds: [960, 373, 277, 173]
+    src: "media/image-4.jpg"
+    cropShape: {shapeName: roundRect, adjustments: [6000]}
+    fit: {mode: cover}
+  - elementId: th4-tag
+    elementType: shape
+    bounds: [960, 373, 50, 30]
+    shapeName: rect
+    fill: {type: solid, color: "$pink"}
+  - elementId: th4-no
+    elementType: text
+    bounds: [960, 373, 50, 30]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, bold: true, color: "$ink", wrap: false, align: [center, middle], text: "04"}
+  - elementId: th5
+    elementType: image
+    bounds: [1253, 373, 277, 173]
+    src: "media/image-5.jpg"
+    cropShape: {shapeName: roundRect, adjustments: [6000]}
+    fit: {mode: cover}
+  - elementId: th5-tag
+    elementType: shape
+    bounds: [1253, 373, 50, 30]
+    shapeName: rect
+    fill: {type: solid, color: "$cinnabar"}
+  - elementId: th5-no
+    elementType: text
+    bounds: [1253, 373, 50, 30]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, bold: true, color: "$white", wrap: false, align: [center, middle], text: "05"}
+  - elementId: th6
+    elementType: image
+    bounds: [1546, 373, 277, 173]
+    src: "media/image-6.jpg"
+    cropShape: {shapeName: roundRect, adjustments: [6000]}
+    fit: {mode: cover}
+  - elementId: th6-tag
+    elementType: shape
+    bounds: [1546, 373, 50, 30]
+    shapeName: rect
+    fill: {type: solid, color: "$yellow"}
+  - elementId: th6-no
+    elementType: text
+    bounds: [1546, 373, 50, 30]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, bold: true, color: "$ink", wrap: false, align: [center, middle], text: "06"}
+
+  # 底部
+  - elementId: midbar-1
+    elementType: shape
+    bounds: [96, 800, 292, 8]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: midbar-2
+    elementType: shape
+    bounds: [388, 800, 291, 8]
+    shapeName: rect
+    fill: {type: solid, color: "$blue"}
+  - elementId: midbar-3
+    elementType: shape
+    bounds: [679, 800, 292, 8]
+    shapeName: rect
+    fill: {type: solid, color: "$orange"}
+  - elementId: midbar-4
+    elementType: shape
+    bounds: [971, 800, 291, 8]
+    shapeName: rect
+    fill: {type: solid, color: "$pink"}
+  - elementId: midbar-5
+    elementType: shape
+    bounds: [1262, 800, 292, 8]
+    shapeName: rect
+    fill: {type: solid, color: "$cinnabar"}
+  - elementId: midbar-6
+    elementType: shape
+    bounds: [1554, 800, 302, 8]
+    shapeName: rect
+    fill: {type: solid, color: "$yellow"}
+  - elementId: quote
+    elementType: text
+    bounds: [96, 846, 1728, 48]
+    content:
+      fontSize: 30
+      color: "$soft"
+      wrap: false
+      align: [center, middle]
+      text: "把每一件作品，都当成一次完整的表达。"
+  - elementId: bottom-rule
+    elementType: shape
+    bounds: [64, 988, 1792, 2]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+  - elementId: bottom-note
+    elementType: text
+    bounds: [64, 1006, 1792, 36]
+    content:
+      style: "$mono"
+      fontSize: 20
+      wrap: false
+      align: [center, middle]
+      text: "六件作品 · 三种能力 · 一个创作者　——　© DACHANG"

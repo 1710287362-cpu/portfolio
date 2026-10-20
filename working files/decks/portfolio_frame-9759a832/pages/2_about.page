@@ -1,0 +1,444 @@
+pageType: content
+background:
+  type: solid
+  color: "$ink"
+elements:
+  # 顶部六色条
+  - elementId: topbar-1
+    elementType: shape
+    bounds: [0, 0, 320, 14]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: topbar-2
+    elementType: shape
+    bounds: [320, 0, 320, 14]
+    shapeName: rect
+    fill: {type: solid, color: "$blue"}
+  - elementId: topbar-3
+    elementType: shape
+    bounds: [640, 0, 320, 14]
+    shapeName: rect
+    fill: {type: solid, color: "$orange"}
+  - elementId: topbar-4
+    elementType: shape
+    bounds: [960, 0, 320, 14]
+    shapeName: rect
+    fill: {type: solid, color: "$pink"}
+  - elementId: topbar-5
+    elementType: shape
+    bounds: [1280, 0, 320, 14]
+    shapeName: rect
+    fill: {type: solid, color: "$cinnabar"}
+  - elementId: topbar-6
+    elementType: shape
+    bounds: [1600, 0, 320, 14]
+    shapeName: rect
+    fill: {type: solid, color: "$yellow"}
+
+  # 页眉
+  - elementId: header-sq
+    elementType: shape
+    bounds: [64, 66, 14, 14]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: header
+    elementType: text
+    bounds: [92, 54, 700, 38]
+    content:
+      style: "$mono"
+      fontSize: 24
+      wrap: false
+      align: [left, middle]
+      text: "02 / RESUME — 简历"
+  - elementId: header-right
+    elementType: text
+    bounds: [1300, 54, 556, 38]
+    content:
+      style: "$mono"
+      fontSize: 22
+      wrap: false
+      align: [right, middle]
+      text: "PROFILE"
+  - elementId: header-rule
+    elementType: shape
+    bounds: [64, 106, 1792, 2]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+
+  # 左栏：个人信息
+  - elementId: name
+    elementType: image
+    bounds: [92, 152, 238, 110]
+    src: "media/name-logo.png"
+    fit: {mode: fill}
+  - elementId: name-en
+    elementType: text
+    bounds: [96, 272, 430, 34]
+    content:
+      style: "$mono"
+      fontSize: 19
+      color: "$gold"
+      wrap: false
+      align: [left, middle]
+      text: "DIRECTOR × DESIGNER × DEVELOPER"
+  - elementId: name-bar
+    elementType: shape
+    bounds: [96, 322, 90, 6]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: intro
+    elementType: text
+    bounds: [96, 352, 410, 160]
+    content:
+      fontSize: 22
+      color: "$soft"
+      lineHeight: 1.65
+      align: [left, top]
+      text: |
+        <p>AIGC 短片导演，也做视觉设计与前端开发。过去一年，用 AI 完成了六件作品——从末日校园的爱情短片，到一座需要「慢下来」的古镇网页。</p>
+
+  # 左栏：身份标签（纵向）
+  - elementId: pill1
+    elementType: shape
+    bounds: [96, 546, 320, 54]
+    shapeName: roundRect
+    adjustments: [50000]
+    fill: {type: solid, color: "#E8A33D26"}
+    border: {style: solid, width: 1, color: "$gold"}
+  - elementId: pill1-t
+    elementType: text
+    bounds: [124, 546, 270, 54]
+    content: {fontSize: 22, color: "$gold", wrap: false, align: [left, middle], text: "AIGC 短片导演"}
+  - elementId: pill1-dot
+    elementType: shape
+    bounds: [104, 565, 16, 16]
+    shapeName: ellipse
+    fill: {type: solid, color: "$gold"}
+  - elementId: pill2
+    elementType: shape
+    bounds: [96, 616, 320, 54]
+    shapeName: roundRect
+    adjustments: [50000]
+    fill: {type: solid, color: "#2F5BFF26"}
+    border: {style: solid, width: 1, color: "$blue"}
+  - elementId: pill2-t
+    elementType: text
+    bounds: [124, 616, 270, 54]
+    content: {fontSize: 22, color: "#8FA6FF", wrap: false, align: [left, middle], text: "视觉设计"}
+  - elementId: pill2-dot
+    elementType: shape
+    bounds: [104, 635, 16, 16]
+    shapeName: ellipse
+    fill: {type: solid, color: "$blue"}
+  - elementId: pill3
+    elementType: shape
+    bounds: [96, 686, 320, 54]
+    shapeName: roundRect
+    adjustments: [50000]
+    fill: {type: solid, color: "#E8641C26"}
+    border: {style: solid, width: 1, color: "$orange"}
+  - elementId: pill3-t
+    elementType: text
+    bounds: [124, 686, 270, 54]
+    content: {fontSize: 22, color: "#F0945F", wrap: false, align: [left, middle], text: "前端开发"}
+  - elementId: pill3-dot
+    elementType: shape
+    bounds: [104, 705, 16, 16]
+    shapeName: ellipse
+    fill: {type: solid, color: "$orange"}
+  - elementId: tools
+    elementType: text
+    bounds: [96, 786, 420, 60]
+    content:
+      style: "$mono"
+      fontSize: 17
+      lineHeight: 1.7
+      align: [left, top]
+      text: |
+        <p>TOOLS — REACT / VITE / TAILWIND</p>
+        <p>DEPLOY — GITHUB PAGES</p>
+
+  # 右侧：项目时间线
+  - elementId: tl-label-sq
+    elementType: shape
+    bounds: [560, 162, 14, 14]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: tl-label
+    elementType: text
+    bounds: [588, 150, 700, 38]
+    content:
+      style: "$mono"
+      fontSize: 24
+      wrap: false
+      align: [left, middle]
+      text: "六个项目 / SIX PROJECTS"
+  # 时间线主轴
+  - elementId: tl-axis
+    elementType: shape
+    bounds: [560, 564, 1296, 4]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+
+  # 节点 1（上）迷失的星星
+  - elementId: n1-stem
+    elementType: shape
+    bounds: [639, 440, 2, 110]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+  - elementId: n1-card
+    elementType: shape
+    bounds: [540, 250, 200, 190]
+    shapeName: rect
+    fill: {type: solid, color: "$card"}
+    border: {style: solid, width: 1, color: "$line"}
+  - elementId: n1-bar
+    elementType: shape
+    bounds: [540, 250, 200, 6]
+    shapeName: rect
+    fill: {type: solid, color: "$gold"}
+  - elementId: n1-no
+    elementType: text
+    bounds: [556, 268, 168, 26]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, color: "$gold", wrap: false, align: [left, middle], text: "01"}
+  - elementId: n1-title
+    elementType: text
+    bounds: [556, 300, 168, 62]
+    content: {fontSize: 23, bold: true, color: "$white", lineHeight: 1.25, align: [left, top], text: "迷失的星星"}
+  - elementId: n1-meta
+    elementType: text
+    bounds: [556, 372, 168, 56]
+    content: {fontSize: 16, color: "$grey", lineHeight: 1.5, align: [left, top], text: "AIGC 叙事短片 · 4'51''"}
+  - elementId: n1-dot
+    elementType: shape
+    bounds: [627, 553, 26, 26]
+    shapeName: ellipse
+    fill: {type: solid, color: "$gold"}
+
+  # 节点 2（下）HIKVISION
+  - elementId: n2-stem
+    elementType: shape
+    bounds: [859, 580, 2, 110]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+  - elementId: n2-card
+    elementType: shape
+    bounds: [760, 690, 200, 190]
+    shapeName: rect
+    fill: {type: solid, color: "$card"}
+    border: {style: solid, width: 1, color: "$line"}
+  - elementId: n2-bar
+    elementType: shape
+    bounds: [760, 690, 200, 6]
+    shapeName: rect
+    fill: {type: solid, color: "$blue"}
+  - elementId: n2-no
+    elementType: text
+    bounds: [776, 708, 168, 26]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, color: "#8FA6FF", wrap: false, align: [left, middle], text: "02"}
+  - elementId: n2-title
+    elementType: text
+    bounds: [776, 740, 168, 62]
+    content: {fontSize: 23, bold: true, color: "$white", lineHeight: 1.25, align: [left, top], text: "HIK · MIP 冷屏"}
+  - elementId: n2-meta
+    elementType: text
+    bounds: [776, 812, 168, 56]
+    content: {fontSize: 16, color: "$grey", lineHeight: 1.5, align: [left, top], text: "产品广告 · AIGC"}
+  - elementId: n2-dot
+    elementType: shape
+    bounds: [847, 553, 26, 26]
+    shapeName: ellipse
+    fill: {type: solid, color: "$blue"}
+
+  # 节点 3（上）霜狩
+  - elementId: n3-stem
+    elementType: shape
+    bounds: [1079, 440, 2, 110]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+  - elementId: n3-card
+    elementType: shape
+    bounds: [980, 250, 200, 190]
+    shapeName: rect
+    fill: {type: solid, color: "$card"}
+    border: {style: solid, width: 1, color: "$line"}
+  - elementId: n3-bar
+    elementType: shape
+    bounds: [980, 250, 200, 6]
+    shapeName: rect
+    fill: {type: solid, color: "$orange"}
+  - elementId: n3-no
+    elementType: text
+    bounds: [996, 268, 168, 26]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, color: "#F0945F", wrap: false, align: [left, middle], text: "03"}
+  - elementId: n3-title
+    elementType: text
+    bounds: [996, 300, 168, 62]
+    content: {fontSize: 23, bold: true, color: "$white", lineHeight: 1.25, align: [left, top], text: "霜狩 FROST HUNT"}
+  - elementId: n3-meta
+    elementType: text
+    bounds: [996, 372, 168, 56]
+    content: {fontSize: 16, color: "$grey", lineHeight: 1.5, align: [left, top], text: "AI 动画概念 · 2024"}
+  - elementId: n3-dot
+    elementType: shape
+    bounds: [1067, 553, 26, 26]
+    shapeName: ellipse
+    fill: {type: solid, color: "$orange"}
+
+  # 节点 4（下）莱芙汀
+  - elementId: n4-stem
+    elementType: shape
+    bounds: [1299, 580, 2, 110]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+  - elementId: n4-card
+    elementType: shape
+    bounds: [1200, 690, 200, 190]
+    shapeName: rect
+    fill: {type: solid, color: "$card"}
+    border: {style: solid, width: 1, color: "$line"}
+  - elementId: n4-bar
+    elementType: shape
+    bounds: [1200, 690, 200, 6]
+    shapeName: rect
+    fill: {type: solid, color: "$pink"}
+  - elementId: n4-no
+    elementType: text
+    bounds: [1216, 708, 168, 26]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, color: "$pink", wrap: false, align: [left, middle], text: "04"}
+  - elementId: n4-title
+    elementType: text
+    bounds: [1216, 740, 168, 62]
+    content: {fontSize: 23, bold: true, color: "$white", lineHeight: 1.25, align: [left, top], text: "莱芙汀 LAFTING"}
+  - elementId: n4-meta
+    elementType: text
+    bounds: [1216, 812, 168, 56]
+    content: {fontSize: 16, color: "$grey", lineHeight: 1.5, align: [left, top], text: "品牌影片 · 玫瑰护肤"}
+  - elementId: n4-dot
+    elementType: shape
+    bounds: [1287, 553, 26, 26]
+    shapeName: ellipse
+    fill: {type: solid, color: "$pink"}
+
+  # 节点 5（上）枫泾古镇
+  - elementId: n5-stem
+    elementType: shape
+    bounds: [1519, 440, 2, 110]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+  - elementId: n5-card
+    elementType: shape
+    bounds: [1420, 250, 200, 190]
+    shapeName: rect
+    fill: {type: solid, color: "$card"}
+    border: {style: solid, width: 1, color: "$line"}
+  - elementId: n5-bar
+    elementType: shape
+    bounds: [1420, 250, 200, 6]
+    shapeName: rect
+    fill: {type: solid, color: "$cinnabar"}
+  - elementId: n5-no
+    elementType: text
+    bounds: [1436, 268, 168, 26]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, color: "#D08A75", wrap: false, align: [left, middle], text: "05"}
+  - elementId: n5-title
+    elementType: text
+    bounds: [1436, 300, 168, 62]
+    content: {fontSize: 23, bold: true, color: "$white", lineHeight: 1.25, align: [left, top], text: "枫泾古镇"}
+  - elementId: n5-meta
+    elementType: text
+    bounds: [1436, 372, 168, 56]
+    content: {fontSize: 16, color: "$grey", lineHeight: 1.5, align: [left, top], text: "网页设计 + 前端 · 2025"}
+  - elementId: n5-dot
+    elementType: shape
+    bounds: [1507, 553, 26, 26]
+    shapeName: ellipse
+    fill: {type: solid, color: "$cinnabar"}
+
+  # 节点 6（下）美团中秋夜
+  - elementId: n6-stem
+    elementType: shape
+    bounds: [1739, 580, 2, 110]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+  - elementId: n6-card
+    elementType: shape
+    bounds: [1640, 690, 200, 190]
+    shapeName: rect
+    fill: {type: solid, color: "$card"}
+    border: {style: solid, width: 1, color: "$line"}
+  - elementId: n6-bar
+    elementType: shape
+    bounds: [1640, 690, 200, 6]
+    shapeName: rect
+    fill: {type: solid, color: "$yellow"}
+  - elementId: n6-no
+    elementType: text
+    bounds: [1656, 708, 168, 26]
+    content: {fontFamily: "JetBrains Mono", fontSize: 18, color: "$yellow", wrap: false, align: [left, middle], text: "06"}
+  - elementId: n6-title
+    elementType: text
+    bounds: [1656, 740, 168, 62]
+    content: {fontSize: 23, bold: true, color: "$white", lineHeight: 1.25, align: [left, top], text: "美团中秋夜"}
+  - elementId: n6-meta
+    elementType: text
+    bounds: [1656, 812, 168, 56]
+    content: {fontSize: 16, color: "$grey", lineHeight: 1.5, align: [left, top], text: "营销动态海报 · 2026"}
+  - elementId: n6-dot
+    elementType: shape
+    bounds: [1727, 553, 26, 26]
+    shapeName: ellipse
+    fill: {type: solid, color: "$yellow"}
+
+  # 联系条
+  - elementId: contact-card
+    elementType: shape
+    bounds: [96, 930, 1760, 84]
+    shapeName: rect
+    fill: {type: solid, color: "$card"}
+    border: {style: solid, width: 1, color: "$line"}
+  - elementId: contact-1
+    elementType: text
+    bounds: [128, 946, 640, 52]
+    content:
+      lineHeight: 1.4
+      align: [left, middle]
+      text: |
+        <p><span style="font-size:15px; color:$grey; font-family:JetBrains Mono">EMAIL　</span><span style="font-size:19px; color:$white">your-email@example.com（占位）</span></p>
+  - elementId: contact-sep1
+    elementType: shape
+    bounds: [800, 950, 1, 44]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+  - elementId: contact-2
+    elementType: text
+    bounds: [832, 946, 480, 52]
+    content:
+      lineHeight: 1.4
+      align: [left, middle]
+      text: |
+        <p><span style="font-size:15px; color:$grey; font-family:JetBrains Mono">WECHAT　</span><span style="font-size:19px; color:$white">your-wechat（占位）</span></p>
+  - elementId: contact-sep2
+    elementType: shape
+    bounds: [1344, 950, 1, 44]
+    shapeName: rect
+    fill: {type: solid, color: "$line"}
+  - elementId: contact-3
+    elementType: text
+    bounds: [1376, 946, 450, 52]
+    content:
+      lineHeight: 1.4
+      align: [left, middle]
+      text: |
+        <p><span style="font-size:15px; color:$grey; font-family:JetBrains Mono">GITHUB　</span><span style="font-size:19px; color:$white">1710287362-cpu.github.io</span></p>
+
+  # 页脚
+  - elementId: footer
+    elementType: text
+    bounds: [64, 1030, 1792, 30]
+    content:
+      style: "$mono"
+      fontSize: 18
+      wrap: false
+      align: [center, middle]
+      text: "DACHANG · PORTFOLIO"

@@ -261,7 +261,6 @@
         var img = document.createElement('img');
         img.src = src;
         img.alt = (card.getAttribute('data-title') || '作品') + ' 排版 ' + (i + 1);
-        img.loading = 'lazy';
         projectViewerImgs.appendChild(img);
       });
     }
