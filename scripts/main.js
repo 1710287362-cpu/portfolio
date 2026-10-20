@@ -110,6 +110,28 @@
     });
   }
 
+  /* ---------- Hero 轮播箭头：循环切换视频 ---------- */
+  var heroPrev = document.getElementById('heroPrev');
+  var heroNext = document.getElementById('heroNext');
+  if (heroPrev && heroNext && heroVideo) {
+    var heroPlaylist = [
+      './assets/videos/home.mp4',
+      './assets/videos/lost-stars.mp4',
+      './assets/videos/lafting-tvc.mp4',
+      './assets/videos/shuangshou.mp4',
+      './assets/videos/hikvision-led.mp4'
+    ];
+    var heroIndex = 0;
+    function heroShow(i) {
+      heroIndex = (i + heroPlaylist.length) % heroPlaylist.length;
+      heroVideo.src = heroPlaylist[heroIndex];
+      heroVideo.load();
+      heroVideo.play().catch(function () {});
+    }
+    heroPrev.addEventListener('click', function () { heroShow(heroIndex - 1); });
+    heroNext.addEventListener('click', function () { heroShow(heroIndex + 1); });
+  }
+
   /* ---------- 多视频互斥播放 ---------- */
   var allVideos = document.querySelectorAll('video');
   allVideos.forEach(function (video) {

@@ -73,14 +73,15 @@ elements:
     fit: {mode: fill}
   - elementId: name-en
     elementType: text
-    bounds: [96, 272, 430, 34]
+    bounds: [96, 272, 440, 34]
     content:
       style: "$mono"
-      fontSize: 19
+      fontSize: 17
+      letterSpacing: 2
       color: "$gold"
       wrap: false
       align: [left, middle]
-      text: "DIRECTOR × DESIGNER × DEVELOPER"
+      text: "视觉传达设计 23 级毕业生 · 主攻视频创作方向"
   - elementId: name-bar
     elementType: shape
     bounds: [96, 322, 90, 6]
@@ -88,67 +89,68 @@ elements:
     fill: {type: solid, color: "$gold"}
   - elementId: intro
     elementType: text
-    bounds: [96, 352, 410, 160]
+    bounds: [96, 344, 420, 200]
     content:
-      fontSize: 22
+      fontSize: 20
       color: "$soft"
-      lineHeight: 1.65
+      lineHeight: 1.55
       align: [left, top]
       text: |
-        <p>AIGC 短片导演，也做视觉设计与前端开发。过去一年，用 AI 完成了六件作品——从末日校园的爱情短片，到一座需要「慢下来」的古镇网页。</p>
+        <p>我喜欢把脑海里那些还没被定义的画面，变成可以播放的东西。AI 是我实现想法的工具——它不替代创意，只负责缩短想法落地的距离。</p>
+        <p>每一段视频都是一次把不可见的东西变成可见的尝试。我的目标是让每一个想法从构思到成片都不被辜负。</p>
 
   # 左栏：身份标签（纵向）
   - elementId: pill1
     elementType: shape
-    bounds: [96, 546, 320, 54]
+    bounds: [96, 576, 320, 54]
     shapeName: roundRect
     adjustments: [50000]
     fill: {type: solid, color: "#E8A33D26"}
     border: {style: solid, width: 1, color: "$gold"}
   - elementId: pill1-t
     elementType: text
-    bounds: [124, 546, 270, 54]
+    bounds: [124, 576, 270, 54]
     content: {fontSize: 22, color: "$gold", wrap: false, align: [left, middle], text: "AIGC 短片导演"}
   - elementId: pill1-dot
     elementType: shape
-    bounds: [104, 565, 16, 16]
+    bounds: [104, 595, 16, 16]
     shapeName: ellipse
     fill: {type: solid, color: "$gold"}
   - elementId: pill2
     elementType: shape
-    bounds: [96, 616, 320, 54]
+    bounds: [96, 646, 320, 54]
     shapeName: roundRect
     adjustments: [50000]
     fill: {type: solid, color: "#2F5BFF26"}
     border: {style: solid, width: 1, color: "$blue"}
   - elementId: pill2-t
     elementType: text
-    bounds: [124, 616, 270, 54]
+    bounds: [124, 646, 270, 54]
     content: {fontSize: 22, color: "#8FA6FF", wrap: false, align: [left, middle], text: "视觉设计"}
   - elementId: pill2-dot
     elementType: shape
-    bounds: [104, 635, 16, 16]
+    bounds: [104, 665, 16, 16]
     shapeName: ellipse
     fill: {type: solid, color: "$blue"}
   - elementId: pill3
     elementType: shape
-    bounds: [96, 686, 320, 54]
+    bounds: [96, 716, 320, 54]
     shapeName: roundRect
     adjustments: [50000]
     fill: {type: solid, color: "#E8641C26"}
     border: {style: solid, width: 1, color: "$orange"}
   - elementId: pill3-t
     elementType: text
-    bounds: [124, 686, 270, 54]
+    bounds: [124, 716, 270, 54]
     content: {fontSize: 22, color: "#F0945F", wrap: false, align: [left, middle], text: "前端开发"}
   - elementId: pill3-dot
     elementType: shape
-    bounds: [104, 705, 16, 16]
+    bounds: [104, 735, 16, 16]
     shapeName: ellipse
     fill: {type: solid, color: "$orange"}
   - elementId: tools
     elementType: text
-    bounds: [96, 786, 420, 60]
+    bounds: [96, 806, 420, 60]
     content:
       style: "$mono"
       fontSize: 17

@@ -63,7 +63,7 @@ stroke(dB, ox + 270, 215, ox + 440, 215, SW2)
 stroke(dB, ox + 260, 295, ox + 455, 295, SW2)    # 横
 stroke(dB, ox + 455, 295, ox + 425, 470, SW2)    # 折
 stroke(dB, ox + 425, 470, ox + 399, 447, SW2)    # 挑钩
-stroke(dB, ox + 350, 272, ox + 303, 418, SW3)    # 撇①：微微出头
+stroke(dB, ox + 405, 245, ox + 270, 465, SW2)    # 撇①：长穿越撇（参考上一版）
 stroke(dB, ox + 400, 312, ox + 355, 455, SW3)    # 撇②：含内不出头
 B = crop_bbox(imgB)
 
