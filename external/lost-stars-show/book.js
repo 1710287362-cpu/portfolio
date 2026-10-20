@@ -29,7 +29,7 @@
   /* 视频走 CDN：github.io 对 mp4 限速仅 ~17KB/s（内嵌播放两秒即卡），
      jsDelivr(~300KB/s) 与 GitHub Release(~280KB/s) 通道正常 */
   var CDN = 'assets/';
-  var FULL_SRC = '../assets/videos/lost-stars.mp4';
+  var FULL_SRC = '../../assets/videos/lost-stars.mp4';
   var PAGES = [
     { type: 'video', src: CDN + 'hero.mp4',   poster: CDN + 'poster_hero.jpg' },
     { type: 'video', src: CDN + '0.mp4?v=2',  poster: CDN + 'poster_0.jpg'    },
@@ -48,7 +48,7 @@
   var N = PAGES.length;
   var FADE_IDX = N - 1;                       // 5 的索引（最后一张书页）
   var VIDEO6 = { src: CDN + '6.mp4', poster: CDN + 'poster_6.jpg' };
-  var FULL   = { src: FULL_SRC + '?v=2', poster: CDN + 'poster_full.jpg' };
+  var FULL   = { src: FULL_SRC, poster: CDN + 'poster_full.jpg' };
   var FADE_AHEAD = 1.6;                       // 5 结尾提前渐黑的秒数
 
   var book       = document.getElementById('book');
@@ -103,7 +103,9 @@
   overlay.appendChild(ovPaper);
   overlay.appendChild(ovView);
 
+  var ovHideTimer = null;
   function showOverlay(dir) {
+    if (ovHideTimer) { clearTimeout(ovHideTimer); ovHideTimer = null; }
     overlay.className = 'half-overlay ' + (dir > 0 ? 'ov-left' : 'ov-right');
     overlay.style.transition = 'none';
     overlay.style.visibility = 'visible';
@@ -112,7 +114,9 @@
   function hideOverlay() {
     overlay.style.transition = 'opacity .12s ease';
     overlay.style.opacity = '0';
-    setTimeout(function () {
+    ovHideTimer = setTimeout(function () {
+      ovHideTimer = null;
+      if (overlay.style.opacity !== '0') return;   // 期间被重新显示（来回拖动）
       overlay.style.visibility = 'hidden';
       overlay.style.transition = 'none';
     }, 150);
@@ -976,7 +980,7 @@
     return true;
   }
 
-  var SWAP_Q = 0.65;         // 遮盖淡出点：叶片扫过 65% 时剩余半页切换到目标页
+  var SWAP_Q = 0.75;         // 遮盖淡出点：叶片扫过 75% 时剩余半页切换到目标页
 
   // 从 fromQ 匀速动画到 q=1（完成翻页，随后 finishTurn 加载并开播目标页视频）
   function animateLeaf(fromQ, dur) {
@@ -1029,6 +1033,10 @@
     if (!turn.ovHidden && turn.q >= SWAP_Q) {
       turn.ovHidden = true;
       hideOverlay();
+    } else if (turn.ovHidden && turn.q < SWAP_Q - 0.04) {
+      // 不松手往回拖：退过阈值后把对侧半页恢复为当前页定格，画面跟随回退
+      turn.ovHidden = false;
+      showOverlay(turn.dir);
     }
     renderLeaf();
   }
@@ -1139,7 +1147,6 @@
   book.addEventListener('pointermove', function (e) {
     if (!dragging) return;
     var dx = e.clientX - downX, dy = e.clientY - downY;
-    window.__dbg = { dragging: dragging, moved: moved, dx: dx, mode: mode, turn: !!turn, liveTurn: !!liveTurn };
     if (!moved) {
       if (Math.abs(dx) <= 8 || Math.abs(dx) < Math.abs(dy)) return;  // 微小/纵向移动忽略
       moved = true;
@@ -1148,7 +1155,6 @@
         beginLiveTurn(downX > r0.left + r0.width / 2 ? 1 : -1);
       }
     }
-    window.__dbg2 = { moved: moved, mode: mode, liveTurn: !!liveTurn, turnQ: turn ? turn.q : null };
     if (liveTurn) moveLiveTurn(e.clientX);   // 叶片跟手
   });
 
