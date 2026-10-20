@@ -68,7 +68,7 @@ elements:
   # 左栏：个人信息
   - elementId: name
     elementType: image
-    bounds: [92, 152, 238, 110]
+    bounds: [92, 152, 238, 105]
     src: "media/name-logo.png"
     fit: {mode: fill}
   - elementId: name-en

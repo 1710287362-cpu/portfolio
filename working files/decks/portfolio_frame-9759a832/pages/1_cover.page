@@ -108,7 +108,7 @@ elements:
     fill: {type: solid, color: "$gold"}
   - elementId: creator-logo
     elementType: image
-    bounds: [96, 640, 113, 52]
+    bounds: [96, 640, 113, 50]
     src: "media/name-logo.png"
     fit: {mode: fill}
   - elementId: creator-en
