@@ -115,19 +115,25 @@
   var heroNext = document.getElementById('heroNext');
   if (heroPrev && heroNext && heroVideo) {
     var heroPlaylist = [
-      './assets/videos/home.mp4',
-      './assets/videos/lost-stars.mp4',
-      './assets/videos/lafting-tvc.mp4',
-      './assets/videos/shuangshou.mp4',
-      './assets/videos/hikvision-led.mp4'
+      { src: './assets/videos/home.mp4', poster: './assets/images/home-poster.jpg' },
+      { src: './assets/videos/lost-stars.mp4', poster: './assets/images/lost-stars-cover.jpg' },
+      { src: './assets/videos/lafting-tvc.mp4', poster: './assets/images/lafting-cover.jpg' },
+      { src: './assets/videos/shuangshou.mp4', poster: './assets/images/shuangshou-cover.jpg' },
+      { src: './assets/videos/hikvision-led.mp4', poster: './assets/images/hikvision-cover.jpg' }
     ];
     var heroIndex = 0;
     function heroShow(i) {
       heroIndex = (i + heroPlaylist.length) % heroPlaylist.length;
-      heroVideo.src = heroPlaylist[heroIndex];
+      heroVideo.classList.add('hero-loading');
+      heroVideo.poster = heroPlaylist[heroIndex].poster;
+      heroVideo.src = heroPlaylist[heroIndex].src;
       heroVideo.load();
       heroVideo.play().catch(function () {});
     }
+    /* 缓冲时压暗 + 出画面后恢复，避免黑屏错觉 */
+    heroVideo.addEventListener('waiting', function () { heroVideo.classList.add('hero-loading'); });
+    heroVideo.addEventListener('playing', function () { heroVideo.classList.remove('hero-loading'); });
+    heroVideo.addEventListener('canplay', function () { heroVideo.classList.remove('hero-loading'); });
     heroPrev.addEventListener('click', function () { heroShow(heroIndex - 1); });
     heroNext.addEventListener('click', function () { heroShow(heroIndex + 1); });
   }

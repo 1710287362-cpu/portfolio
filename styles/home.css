@@ -37,6 +37,11 @@
   display: block;
   pointer-events: none;
   z-index: 1;
+  transition: opacity 0.35s ease;
+}
+
+.hero-top video.hero-loading {
+  opacity: 0.25;
 }
 
 /* 视频控制按钮：右下角，紧贴视频底部 */
