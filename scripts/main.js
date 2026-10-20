@@ -223,11 +223,13 @@
     }, 2000);
   });
 
-  /* ---------- 项目详情视图：上视频 + 下排版（内容动态填充） ---------- */
+  /* ---------- 项目详情视图：上视频/网页 + 下排版（内容动态填充） ---------- */
   var projectViewer = document.getElementById('projectViewer');
   var projectViewerBack = document.getElementById('projectViewerBack');
   var projectViewerTitle = document.getElementById('projectViewerTitle');
   var projectViewerVideo = document.getElementById('projectViewerVideo');
+  var projectViewerSite = document.getElementById('projectViewerSite');
+  var projectViewerCaption = document.getElementById('projectViewerCaption');
   var projectViewerImgs = document.getElementById('projectViewerImgs');
 
   function openProjectViewer(card) {
@@ -235,9 +237,21 @@
     if (projectViewerTitle) {
       projectViewerTitle.textContent = card.getAttribute('data-title') || '';
     }
-    if (projectViewerVideo) {
+    var site = card.getAttribute('data-site');
+    if (site && projectViewerSite) {
+      /* 网页设计类项目：顶部嵌入网页 */
+      projectViewerSite.style.display = 'block';
+      projectViewerSite.src = site;
+      if (projectViewerVideo) projectViewerVideo.style.display = 'none';
+    } else if (projectViewerVideo) {
+      /* 视频类项目：顶部播放视频 */
+      projectViewerVideo.style.display = '';
       projectViewerVideo.src = card.getAttribute('data-video') || '';
       projectViewerVideo.poster = card.getAttribute('data-poster') || '';
+      if (projectViewerSite) projectViewerSite.style.display = 'none';
+    }
+    if (projectViewerCaption) {
+      projectViewerCaption.textContent = card.getAttribute('data-caption') || '创意提案 · 排版设计';
     }
     if (projectViewerImgs) {
       projectViewerImgs.innerHTML = '';
@@ -264,6 +278,7 @@
       projectViewerVideo.pause();
       projectViewerVideo.src = '';
     }
+    if (projectViewerSite) projectViewerSite.src = '';
     document.body.style.overflow = '';
   }
 
