@@ -377,6 +377,15 @@ html, body {
   background: #fff;
 }
 
+/* 多视频容器（如：美团双动态海报） */
+#projectViewerVideos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+}
+
 .project-viewer-caption {
   font-size: 15px;
   letter-spacing: 3px;

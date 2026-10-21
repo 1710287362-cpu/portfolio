@@ -238,16 +238,41 @@
       projectViewerTitle.textContent = card.getAttribute('data-title') || '';
     }
     var site = card.getAttribute('data-site');
+    /* 清理上一次的多视频容器 */
+    var multiOld = document.getElementById('projectViewerVideos');
+    if (multiOld) multiOld.remove();
     if (site && projectViewerSite) {
       /* 网页设计类项目：顶部嵌入网页 */
       projectViewerSite.style.display = 'block';
       projectViewerSite.src = site;
       if (projectViewerVideo) projectViewerVideo.style.display = 'none';
     } else if (projectViewerVideo) {
-      /* 视频类项目：顶部播放视频 */
-      projectViewerVideo.style.display = '';
-      projectViewerVideo.src = card.getAttribute('data-video') || '';
-      projectViewerVideo.poster = card.getAttribute('data-poster') || '';
+      /* 视频类项目：顶部播放视频（data-video 支持逗号分隔多条） */
+      var videoList = (card.getAttribute('data-video') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      if (videoList.length > 1) {
+        projectViewerVideo.style.display = 'none';
+        projectViewerVideo.removeAttribute('src');
+        projectViewerVideo.load();
+        var vWrap = document.createElement('div');
+        vWrap.id = 'projectViewerVideos';
+        var vPosters = (card.getAttribute('data-vposters') || '').split(',');
+        videoList.forEach(function (src, i) {
+          var v = document.createElement('video');
+          v.src = src;
+          v.controls = true;
+          v.loop = true;
+          v.setAttribute('playsinline', '');
+          v.setAttribute('webkit-playsinline', '');
+          v.setAttribute('x5-playsinline', '');
+          if (vPosters[i] && vPosters[i].trim()) v.poster = vPosters[i].trim();
+          vWrap.appendChild(v);
+        });
+        projectViewerVideo.parentNode.insertBefore(vWrap, projectViewerVideo.nextSibling);
+      } else {
+        projectViewerVideo.style.display = '';
+        projectViewerVideo.src = videoList[0] || '';
+        projectViewerVideo.poster = card.getAttribute('data-poster') || '';
+      }
       if (projectViewerSite) projectViewerSite.style.display = 'none';
     }
     if (projectViewerCaption) {
@@ -276,6 +301,11 @@
     if (projectViewerVideo) {
       projectViewerVideo.pause();
       projectViewerVideo.src = '';
+    }
+    var multi = document.getElementById('projectViewerVideos');
+    if (multi) {
+      multi.querySelectorAll('video').forEach(function (v) { v.pause(); });
+      multi.remove();
     }
     if (projectViewerSite) projectViewerSite.src = '';
     document.body.style.overflow = '';
