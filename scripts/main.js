@@ -257,6 +257,14 @@
         vWrap.id = 'projectViewerVideos';
         var vPosters = (card.getAttribute('data-vposters') || '').split(',');
         videoList.forEach(function (src, i) {
+          if (/\.(webp|gif)(\?|#|$)/i.test(src)) {
+            /* 动图：直接以图片形式循环播放 */
+            var im = document.createElement('img');
+            im.src = src;
+            im.alt = (card.getAttribute('data-title') || '作品') + ' 动图 ' + (i + 1);
+            vWrap.appendChild(im);
+            return;
+          }
           var v = document.createElement('video');
           v.src = src;
           v.controls = true;
