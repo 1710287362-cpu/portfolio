@@ -7,9 +7,9 @@
 }
 
 .works-inner {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 48px;
 }
 
 .works-title {
@@ -114,7 +114,7 @@
 }
 
 @media (max-width: 768px) {
-  .works-inner { padding: 0 20px; }
+  .works-inner { padding: 0 16px; }
   .works-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .works-title { margin-bottom: 44px; font-size: 26px; }
   .overlay .work-name { font-size: 15px; }
@@ -122,6 +122,7 @@
 }
 @media (max-width: 480px) {
   .works-page { padding-top: 100px; }
+  .works-inner { padding: 0 12px; }
   .works-grid { grid-template-columns: 1fr; gap: 12px; }
   .works-title { font-size: 24px; margin-bottom: 36px; }
   .placeholder { font-size: 13px; }
