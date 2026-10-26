@@ -379,6 +379,7 @@
       lbCounter.textContent = (current + 1) + ' / ' + items.length;
       preload(current + 1);
       preload(current - 1);
+      resetZoom();
     }
 
     function open(index) {
@@ -391,6 +392,7 @@
     function close() {
       lightbox.classList.remove('show');
       document.body.style.overflow = '';
+      resetZoom();
     }
 
     function step(dir) {
@@ -416,6 +418,95 @@
       if (e.key === 'ArrowLeft') step(-1);
       if (e.key === 'ArrowRight') step(1);
       if (e.key === 'Escape') close();
+    });
+
+    /* ---------- 缩放与平移（滚轮 / 双指 / 拖拽） ---------- */
+    var scale = 1, panX = 0, panY = 0;
+    var MIN_SCALE = 1, MAX_SCALE = 5;
+
+    function applyTransform() {
+      lbImg.style.transform = 'translate(' + panX + 'px, ' + panY + 'px) scale(' + scale + ')';
+      lbImg.style.cursor = scale > 1 ? 'grab' : 'default';
+    }
+    function resetZoom() {
+      scale = 1; panX = 0; panY = 0;
+      applyTransform();
+    }
+    function clampPan() {
+      var maxX = (lbImg.clientWidth * (scale - 1)) / 2;
+      var maxY = (lbImg.clientHeight * (scale - 1)) / 2;
+      var slack = 80;
+      panX = Math.max(-maxX - slack, Math.min(maxX + slack, panX));
+      panY = Math.max(-maxY - slack, Math.min(maxY + slack, panY));
+    }
+    function setScale(next) {
+      scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, next));
+      if (scale === MIN_SCALE) { panX = 0; panY = 0; }
+      applyTransform();
+    }
+
+    /* 滚轮缩放（桌面端） */
+    lbImg.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      if (!lightbox.classList.contains('show')) return;
+      setScale(scale * Math.pow(1.0015, -e.deltaY));
+    }, { passive: false });
+
+    /* 双指缩放 + 单指/鼠标拖拽平移（Pointer Events） */
+    var pointers = new Map();
+    var pinchStartDist = 0, pinchStartScale = 1;
+    var dragStart = null;
+
+    lbImg.addEventListener('pointerdown', function (e) {
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 1) {
+        dragStart = { x: e.clientX - panX, y: e.clientY - panY };
+        if (scale > 1) lbImg.style.cursor = 'grabbing';
+      } else if (pointers.size === 2) {
+        var pts = Array.from(pointers.values());
+        pinchStartDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        pinchStartScale = scale;
+      }
+      try { lbImg.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+
+    lbImg.addEventListener('pointermove', function (e) {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 2) {
+        /* 双指捏合 */
+        var pts = Array.from(pointers.values());
+        var dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        if (pinchStartDist > 0) setScale(pinchStartScale * dist / pinchStartDist);
+      } else if (pointers.size === 1 && dragStart) {
+        /* 拖拽平移（放大时才有意义，但未放大也允许小幅拖动） */
+        panX = e.clientX - dragStart.x;
+        panY = e.clientY - dragStart.y;
+        if (scale > 1) clampPan();
+        applyTransform();
+      }
+    });
+
+    function endPointer(e) {
+      pointers.delete(e.pointerId);
+      if (pointers.size < 2) pinchStartDist = 0;
+      if (pointers.size === 0) {
+        dragStart = null;
+        lbImg.style.cursor = scale > 1 ? 'grab' : 'default';
+      }
+    }
+    lbImg.addEventListener('pointerup', endPointer);
+    lbImg.addEventListener('pointercancel', endPointer);
+
+    /* 双击 / 双触：在 1x 与 2.5x 之间切换 */
+    var lastTap = 0;
+    lbImg.addEventListener('dblclick', function () {
+      setScale(scale > 1 ? 1 : 2.5);
+    });
+    lbImg.addEventListener('touchend', function () {
+      var now = Date.now();
+      if (now - lastTap < 320) setScale(scale > 1 ? 1 : 2.5);
+      lastTap = now;
     });
   })();
 

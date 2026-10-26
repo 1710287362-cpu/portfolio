@@ -86,6 +86,10 @@
   border-radius: 4px;
   box-shadow: 0 24px 90px rgba(0, 0, 0, 0.85);
   animation: ill-lb-in 0.3s ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
 }
 
 @keyframes ill-lb-in {
