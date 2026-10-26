@@ -352,31 +352,45 @@
     });
   });
 
-  /* ---------- 作品集页插画横幅：拖动查看全图 ---------- */
+  /* ---------- 作品集页插画横幅：放大 + 拖动查看全图 ---------- */
   (function initBannerPan() {
     var card = document.querySelector('.illus-entry-card');
     if (!card) return;
     var img = card.querySelector('img');
     if (!img) return;
     img.draggable = false;
+    card.draggable = false;
+    card.addEventListener('dragstart', function (e) { e.preventDefault(); });
 
+    var K = 1.6;                 /* 横幅内置放大倍数，留出拖动空间 */
     var dragging = false, moved = false, startX = 0, startY = 0;
-    var posX = 50, posY = 50;
+    var baseW = 0, baseH = 0;    /* 未变形时的 cover 渲染尺寸 */
+    var tx = 0, ty = 0;
 
-    function apply() {
-      img.style.objectPosition = posX + '% ' + posY + '%';
+    function ensureBase() {
+      if (baseW) return;
+      var prev = img.style.transform;
+      img.style.transform = 'none';
+      var r = img.getBoundingClientRect();
+      img.style.transform = prev;
+      baseW = r.width;
+      baseH = r.height;
     }
 
-    function overflow() {
+    function apply() {
+      img.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + K + ')';
+    }
+
+    function clampPan() {
       var cr = card.getBoundingClientRect();
-      var s = Math.max(cr.width / img.naturalWidth, cr.height / img.naturalHeight);
-      return {
-        x: img.naturalWidth * s - cr.width,
-        y: img.naturalHeight * s - cr.height
-      };
+      var limX = Math.max(0, (baseW * K - cr.width) / 2);
+      var limY = Math.max(0, (baseH * K - cr.height) / 2);
+      tx = Math.max(-limX, Math.min(limX, tx));
+      ty = Math.max(-limY, Math.min(limY, ty));
     }
 
     img.addEventListener('pointerdown', function (e) {
+      ensureBase();
       dragging = true;
       moved = false;
       startX = e.clientX;
@@ -391,9 +405,9 @@
       var dy = e.clientY - startY;
       if (!moved && Math.abs(dx) + Math.abs(dy) < 6) return;
       moved = true;
-      var ov = overflow();
-      if (ov.x > 0) posX = Math.max(0, Math.min(100, posX - dx / ov.x * 100));
-      if (ov.y > 0) posY = Math.max(0, Math.min(100, posY - dy / ov.y * 100));
+      tx += dx;
+      ty += dy;
+      clampPan();
       startX = e.clientX;
       startY = e.clientY;
       apply();
@@ -414,6 +428,9 @@
         moved = false;
       }
     }, true);
+
+    /* 窗口尺寸变化后重新测量 */
+    window.addEventListener('resize', function () { baseW = 0; baseH = 0; });
   })();
 
   /* ---------- 插画灯箱：放大欣赏模式 ---------- */
@@ -423,6 +440,8 @@
 
     var items = Array.prototype.slice.call(document.querySelectorAll('.ill-item'));
     var lbImg = document.getElementById('illLbImg');
+    lbImg.draggable = false;
+    lbImg.addEventListener('dragstart', function (e) { e.preventDefault(); });
     var lbCounter = document.getElementById('illLbCounter');
     var btnClose = document.getElementById('illLbClose');
     var btnPrev = document.getElementById('illLbPrev');
