@@ -352,6 +352,73 @@
     });
   });
 
+  /* ---------- 插画灯箱：放大欣赏模式 ---------- */
+  (function initIllustrationLightbox() {
+    var lightbox = document.getElementById('illLightbox');
+    if (!lightbox) return;
+
+    var items = Array.prototype.slice.call(document.querySelectorAll('.ill-item'));
+    var lbImg = document.getElementById('illLbImg');
+    var lbCounter = document.getElementById('illLbCounter');
+    var btnClose = document.getElementById('illLbClose');
+    var btnPrev = document.getElementById('illLbPrev');
+    var btnNext = document.getElementById('illLbNext');
+    var current = 0;
+
+    function preload(index) {
+      if (index < 0 || index >= items.length) return;
+      var pre = new Image();
+      pre.src = items[index].getAttribute('data-full');
+    }
+
+    function render() {
+      var item = items[current];
+      if (!item) return;
+      lbImg.src = item.getAttribute('data-full');
+      lbImg.alt = item.alt || ('插画 ' + (current + 1));
+      lbCounter.textContent = (current + 1) + ' / ' + items.length;
+      preload(current + 1);
+      preload(current - 1);
+    }
+
+    function open(index) {
+      current = index;
+      render();
+      lightbox.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function close() {
+      lightbox.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    function step(dir) {
+      current = (current + dir + items.length) % items.length;
+      render();
+    }
+
+    items.forEach(function (item, i) {
+      item.addEventListener('click', function () { open(i); });
+    });
+
+    btnClose.addEventListener('click', close);
+    btnPrev.addEventListener('click', function () { step(-1); });
+    btnNext.addEventListener('click', function () { step(1); });
+
+    /* 点击图片外深色区域也可关闭 */
+    lightbox.addEventListener('click', function (e) {
+      if (e.target === lightbox) close();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (!lightbox.classList.contains('show')) return;
+      if (e.key === 'ArrowLeft') step(-1);
+      if (e.key === 'ArrowRight') step(1);
+      if (e.key === 'Escape') close();
+    });
+  })();
+
   /* ---------- 按 ESC 关闭弹窗 ---------- */
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {

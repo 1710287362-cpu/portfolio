@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="插画作品 - 沈奕旸 YOUNG" />
+    <title>插画 | 沈奕旸 YOUNG</title>
+    <link rel="stylesheet" href="./styles/base.css?v=20261026a" />
+    <link rel="stylesheet" href="./styles/illustrations.css?v=20261026a" />
+  </head>
+  <body>
+    <!-- 顶部导航（深色页面） -->
+    <nav class="site-nav on-dark">
+      <div class="nav-inner">
+        <a class="brand" href="./index.html">
+          <span class="cn">沈奕旸</span>
+          <span class="sep"></span>
+          <span class="en">YOUNG</span>
+        </a>
+        <div class="nav-right">
+          <a class="nav-link" href="./works.html">作品集</a>
+          <a class="nav-link active" href="./illustrations.html">插画</a>
+          <a class="nav-link" href="./about.html">关于我</a>
+          <button class="btn-resume" id="btnResume">下载简历</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="page illus-page">
+      <div class="illus-inner">
+        <h1 class="illus-title">插画</h1>
+        <p class="illus-sub">ILLUSTRATION · 悬浮预览 · 点击进入放大欣赏</p>
+
+        <div class="illus-grid" id="illusGrid">
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-01.jpg" data-full="./assets/illustrations/ill-full-01.jpg" alt="插画 01" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-02.jpg" data-full="./assets/illustrations/ill-full-02.jpg" alt="插画 02" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-03.jpg" data-full="./assets/illustrations/ill-full-03.jpg" alt="插画 03" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-04.jpg" data-full="./assets/illustrations/ill-full-04.jpg" alt="插画 04" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-05.jpg" data-full="./assets/illustrations/ill-full-05.jpg" alt="插画 05" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-06.jpg" data-full="./assets/illustrations/ill-full-06.jpg" alt="插画 06" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-07.jpg" data-full="./assets/illustrations/ill-full-07.jpg" alt="插画 07" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-08.jpg" data-full="./assets/illustrations/ill-full-08.jpg" alt="插画 08" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-09.jpg" data-full="./assets/illustrations/ill-full-09.jpg" alt="插画 09" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-10.jpg" data-full="./assets/illustrations/ill-full-10.jpg" alt="插画 10" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-11.jpg" data-full="./assets/illustrations/ill-full-11.jpg" alt="插画 11" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-12.jpg" data-full="./assets/illustrations/ill-full-12.jpg" alt="插画 12" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-13.jpg" data-full="./assets/illustrations/ill-full-13.jpg" alt="插画 13" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-14.jpg" data-full="./assets/illustrations/ill-full-14.jpg" alt="插画 14" />
+          <img class="ill-item" src="./assets/illustrations/ill-thumb-15.jpg" data-full="./assets/illustrations/ill-full-15.jpg" alt="插画 15" />
+        </div>
+      </div>
+    </main>
+
+    <!-- 下载简历弹窗 -->
+    <div class="modal-overlay" id="resumeModal">
+      <div class="modal-box">
+        <h3>下载简历</h3>
+        <p>选择您需要的简历文件格式进行下载。</p>
+        <div class="modal-actions">
+          <button class="modal-btn cancel" id="closeModal">取消</button>
+          <button class="modal-btn download" id="do-download">下载 PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 插画放大欣赏（灯箱） -->
+    <div class="ill-lightbox" id="illLightbox">
+      <img id="illLbImg" src="" alt="" />
+      <button class="ill-lb-btn ill-lb-close" id="illLbClose" aria-label="关闭">✕</button>
+      <button class="ill-lb-btn ill-lb-prev" id="illLbPrev" aria-label="上一张">‹</button>
+      <button class="ill-lb-btn ill-lb-next" id="illLbNext" aria-label="下一张">›</button>
+      <div class="ill-lb-counter" id="illLbCounter"></div>
+    </div>
+
+    <script src="./scripts/main.js?v=20261026a"></script>
+  </body>
+</html>
