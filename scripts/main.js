@@ -352,6 +352,70 @@
     });
   });
 
+  /* ---------- 作品集页插画横幅：拖动查看全图 ---------- */
+  (function initBannerPan() {
+    var card = document.querySelector('.illus-entry-card');
+    if (!card) return;
+    var img = card.querySelector('img');
+    if (!img) return;
+    img.draggable = false;
+
+    var dragging = false, moved = false, startX = 0, startY = 0;
+    var posX = 50, posY = 50;
+
+    function apply() {
+      img.style.objectPosition = posX + '% ' + posY + '%';
+    }
+
+    function overflow() {
+      var cr = card.getBoundingClientRect();
+      var s = Math.max(cr.width / img.naturalWidth, cr.height / img.naturalHeight);
+      return {
+        x: img.naturalWidth * s - cr.width,
+        y: img.naturalHeight * s - cr.height
+      };
+    }
+
+    img.addEventListener('pointerdown', function (e) {
+      dragging = true;
+      moved = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      try { img.setPointerCapture(e.pointerId); } catch (err) {}
+      img.style.cursor = 'grabbing';
+    });
+
+    img.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - startX;
+      var dy = e.clientY - startY;
+      if (!moved && Math.abs(dx) + Math.abs(dy) < 6) return;
+      moved = true;
+      var ov = overflow();
+      if (ov.x > 0) posX = Math.max(0, Math.min(100, posX - dx / ov.x * 100));
+      if (ov.y > 0) posY = Math.max(0, Math.min(100, posY - dy / ov.y * 100));
+      startX = e.clientX;
+      startY = e.clientY;
+      apply();
+    });
+
+    function endDrag() {
+      dragging = false;
+      img.style.cursor = 'grab';
+    }
+    img.addEventListener('pointerup', endDrag);
+    img.addEventListener('pointercancel', endDrag);
+
+    /* 拖动后阻止触发跳转 */
+    card.addEventListener('click', function (e) {
+      if (moved) {
+        e.preventDefault();
+        e.stopPropagation();
+        moved = false;
+      }
+    }, true);
+  })();
+
   /* ---------- 插画灯箱：放大欣赏模式 ---------- */
   (function initIllustrationLightbox() {
     var lightbox = document.getElementById('illLightbox');
