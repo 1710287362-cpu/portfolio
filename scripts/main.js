@@ -238,6 +238,18 @@
       projectViewerTitle.textContent = card.getAttribute('data-title') || '';
     }
     var site = card.getAttribute('data-site');
+    /* 网页设计类项目：提供线上网址兜底（在新标签页打开） */
+    var newTabBtn = document.getElementById('projectViewerNewTab');
+    var siteurl = card.getAttribute('data-siteurl');
+    if (newTabBtn) {
+      if (site && siteurl) {
+        newTabBtn.style.visibility = 'visible';
+        newTabBtn.onclick = function () { window.open(siteurl, '_blank'); };
+      } else {
+        newTabBtn.style.visibility = 'hidden';
+        newTabBtn.onclick = null;
+      }
+    }
     /* 清理上一次的多视频容器 */
     var multiOld = document.getElementById('projectViewerVideos');
     if (multiOld) multiOld.remove();
