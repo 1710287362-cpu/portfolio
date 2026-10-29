@@ -356,6 +356,11 @@ html, body {
   gap: 28px;
 }
 
+/* 子元素保持自身高度，超出时由容器滚动（防止 flex 压缩把内嵌网页压扁） */
+.project-viewer-body > * {
+  flex-shrink: 0;
+}
+
 .project-viewer-body video {
   width: 100%;
   max-width: 1080px;
