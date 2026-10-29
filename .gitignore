@@ -1,2 +1,13 @@
 .DS_Store
 Thumbs.db
+# 开发用素材，不进仓库（超大字体包、生成图、PPT 工作副本等）
+fonts/
+gen_assets/
+working files/
+check_*.jpg
+contact_sheet.jpg
+build_pdf.py
+scripts/build_*.py
+scripts/organize_*.py
+covers/
+portfolio_frame/
