@@ -298,10 +298,9 @@
       if (site) {
         projectViewerSite.style.display = 'block';
         projectViewerSite.src = site;
-        /* 部分内核不支持 aspect-ratio，用 JS 按实际宽度给出 16:10 高度兜底 */
+        /* JS 兜底：与 CSS 一致，按视口高度 88% 设置，保证近全屏显示 */
         requestAnimationFrame(function () {
-          var w = projectViewerSite.clientWidth;
-          if (w > 0) projectViewerSite.style.height = Math.round(w * 10 / 16) + 'px';
+          if (window.innerHeight > 0) projectViewerSite.style.height = Math.round(window.innerHeight * 0.88) + 'px';
         });
       } else {
         projectViewerSite.style.display = 'none';
@@ -356,12 +355,11 @@
 
   if (projectViewerBack) projectViewerBack.addEventListener('click', closeProjectViewer);
 
-  /* 窗口尺寸变化时，保持内嵌网页 16:10 高度（内核不支持 aspect-ratio 的兜底） */
+  /* 窗口尺寸变化时，保持内嵌网页 88% 视口高度的近全屏显示 */
   window.addEventListener('resize', function () {
     if (projectViewerSite && projectViewer.classList && projectViewer.classList.contains('show')
         && projectViewerSite.style.display !== 'none') {
-      var w = projectViewerSite.clientWidth;
-      if (w > 0) projectViewerSite.style.height = Math.round(w * 10 / 16) + 'px';
+      if (window.innerHeight > 0) projectViewerSite.style.height = Math.round(window.innerHeight * 0.88) + 'px';
     }
   });
 

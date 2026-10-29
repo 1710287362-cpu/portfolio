@@ -371,12 +371,12 @@ html, body {
   outline: none;
 }
 
-/* 详情视图内嵌网页（网页设计类项目） */
+/* 详情视图内嵌网页（网页设计类项目）：近全屏高度 */
 .project-viewer-site {
   display: none;
   width: 100%;
   max-width: 1560px;
-  aspect-ratio: 16 / 10;
+  height: 88vh;
   min-height: 480px;
   border: none;
   border-radius: 10px;
