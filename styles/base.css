@@ -376,8 +376,8 @@ html, body {
   display: none;
   width: 100%;
   max-width: 1560px;
-  aspect-ratio: 16 / 9;
-  min-height: 420px;
+  aspect-ratio: 16 / 10;
+  min-height: 480px;
   border: none;
   border-radius: 10px;
   background: #fff;
