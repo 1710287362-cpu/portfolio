@@ -370,8 +370,8 @@ html, body {
 .project-viewer-site {
   display: none;
   width: 100%;
-  max-width: 1080px;
-  aspect-ratio: 16 / 10;
+  max-width: 1280px;
+  height: 82vh;
   border: none;
   border-radius: 10px;
   background: #fff;
