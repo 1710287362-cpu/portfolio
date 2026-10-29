@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>海康威视 · AIGC视觉设计培训 · 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;800;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #fbfbfd;
+  --bg-elevated: #ffffff;
+  --text-primary: #0a0a0a;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #86868b;
+  --accent: #e60012;
+  --accent-soft: rgba(230, 0, 18, 0.08);
+  --border: rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --radius: 24px;
+  --radius-sm: 16px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  font-weight: 400;
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+/* ===== NAVIGATION ===== */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  padding: 0 4rem;
+  height: 64px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(251, 251, 253, 0.85);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav.hidden { transform: translateY(-100%); }
+.nav-brand {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.2em; color: var(--text-primary);
+  cursor: pointer; user-select: none;
+  transition: opacity 0.3s ease;
+}
+.nav-brand:hover { opacity: 0.65; }
+.nav-brand span { color: var(--accent); }
+.nav-links { display: flex; gap: 3rem; }
+.nav-link {
+  font-size: 12px; color: var(--text-secondary); text-decoration: none;
+  font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  transition: color 0.3s; cursor: pointer;
+}
+.nav-link:hover { color: var(--accent); }
+
+/* ===== HERO SECTION ===== */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  padding: 6rem 8% 4rem;
+}
+
+.hero-bg {
+  position: absolute; inset: 0;
+  background: 
+    radial-gradient(ellipse 60% 50% at 20% 40%, rgba(230, 0, 18, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 60%, rgba(230, 0, 18, 0.03) 0%, transparent 50%);
+}
+
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image: 
+    linear-gradient(rgba(0,0,0,0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.2) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse at 30% 40%, black 10%, transparent 50%);
+  animation: gridDiffuse 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes gridDiffuse {
+  0%, 100% { mask-image: radial-gradient(ellipse at 30% 40%, black 8%, transparent 48%); }
+  50% { mask-image: radial-gradient(ellipse at 70% 60%, black 16%, transparent 62%); }
+}
+
+.hero-content {
+  position: relative; z-index: 2;
+  max-width: 1200px;
+  text-align: left;
+}
+
+.hero-label {
+  font-size: 11px; letter-spacing: 0.4em; color: var(--accent);
+  text-transform: uppercase; margin-bottom: 3rem; font-weight: 600;
+  opacity: 0; animation: fadeUp 1s ease 0.2s forwards;
+}
+
+.hero-title-single {
+  font-size: clamp(5rem, 16vw, 14rem);
+  font-weight: 800; letter-spacing: -0.03em;
+  line-height: 0.95;
+  opacity: 0;
+  animation: titleReveal 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+.hero-title-main { color: var(--text-primary); }
+.hero-title-accent { color: var(--accent); }
+
+@keyframes titleReveal {
+  from { opacity: 0; transform: translateY(100px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes fadeUp { 
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-divider {
+  width: 60px; height: 1px; background: var(--accent);
+  margin: 2.5rem 0 2rem;
+  opacity: 0; animation: fadeUp 1s ease 0.9s forwards;
+}
+
+.hero-desc {
+  font-size: clamp(1rem, 1.4vw, 1.3rem);
+  color: var(--text-secondary); letter-spacing: 0.01em;
+  max-width: 600px; margin-bottom: 1.5rem; line-height: 1.9;
+  font-weight: 400; opacity: 0; animation: fadeUp 1s ease 1s forwards;
+}
+
+
+.hero-meta {
+  font-size: 11px; letter-spacing: 0.5em; color: var(--text-tertiary);
+  text-transform: uppercase; font-weight: 600;
+  opacity: 0; animation: fadeUp 1s ease 1.1s forwards;
+}
+
+
+.hero-scroll {
+  position: absolute; bottom: 3.5rem; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.9rem;
+  opacity: 0; animation: fadeUp 1s ease 1.5s forwards;
+  cursor: pointer; z-index: 3;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-scroll:hover { transform: translateX(-50%) translateY(4px); }
+.hero-scroll-track {
+  position: relative; width: 2px; height: 72px; border-radius: 2px;
+  background: rgba(0,0,0,0.12); overflow: hidden;
+  transition: height 0.85s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.5s ease;
+}
+.hero-scroll.stretching .hero-scroll-track {
+  height: 128px;
+  background: rgba(230,0,18,0.10);
+}
+.hero-scroll-progress {
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 0%;
+  background: linear-gradient(to top, var(--accent), rgba(230,0,18,0.55));
+  border-radius: 2px;
+}
+.hero-scroll-tip {
+  position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(230,0,18,0.15);
+  animation: tipGlow 2.2s ease infinite;
+}
+@keyframes tipGlow {
+  0%,100% { box-shadow: 0 0 0 3px rgba(230,0,18,0.10); opacity: 0.7; }
+  50% { box-shadow: 0 0 0 7px rgba(230,0,18,0.22); opacity: 1; }
+}
+.hero-scroll-text {
+  font-size: 10px; letter-spacing: 0.55em; color: var(--text-secondary);
+  text-transform: uppercase; font-weight: 700; padding-left: 0.55em;
+  transition: color 0.3s ease;
+}
+.hero-scroll:hover .hero-scroll-text,
+.hero-scroll.stretching .hero-scroll-text { color: var(--accent); }
+.hero-scroll-arrow {
+  font-size: 0.9rem; color: var(--text-tertiary); line-height: 1;
+  animation: arrowBounce 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transition: color 0.3s ease;
+}
+.hero-scroll:hover .hero-scroll-arrow { color: var(--accent); }
+@keyframes arrowBounce {
+  0%,100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+/* ===== SECTION COMMON ===== */
+.section { padding: 10rem 2rem; max-width: 1400px; margin: 0 auto; }
+.section-header { margin-bottom: 5rem; }
+.section-label {
+  font-size: 10px; letter-spacing: 0.4em; color: var(--accent);
+  text-transform: uppercase; margin-bottom: 1.5rem; font-weight: 700;
+}
+.section-title {
+  font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800;
+  letter-spacing: 0.04em; line-height: 1.15; margin-bottom: 1.5rem;
+}
+.section-title span { color: var(--accent); }
+.section-desc { font-size: 1.1rem; color: var(--text-secondary); font-weight: 400; max-width: 560px; line-height: 1.8; }
+
+/* ===== CASE STUDIES ===== */
+.cases-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+@media (max-width: 1100px) { .cases-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .cases-grid { grid-template-columns: 1fr; } }
+
+.case-card {
+  position: relative; overflow: hidden; border-radius: var(--radius);
+  cursor: pointer; background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+  opacity: 0; transform: translateY(50px);
+}
+.case-card.visible { opacity: 1; transform: translateY(0); }
+.case-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+
+.case-card-img-wrap {
+  position: relative; overflow: hidden; aspect-ratio: 4/3;
+}
+.case-card-img-wrap::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 40%, transparent 70%);
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+.case-card-img-wrap img,
+.case-card-img-wrap video {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: brightness(0.95) saturate(0.95);
+}
+.case-card:hover .case-card-img-wrap video { transform: scale(1.06); filter: brightness(1) saturate(1); }
+.case-card:hover .case-card-img-wrap img { transform: scale(1.06); filter: brightness(1) saturate(1); }
+
+.case-card-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 2.5rem 2rem 2rem;
+  z-index: 2;
+}
+.case-card-cat {
+  font-size: 10px; letter-spacing: 0.3em; color: rgba(255,255,255,0.7);
+  text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;
+}
+.case-card-title { 
+  font-size: 1.4rem; font-weight: 700; color: #fff; 
+  letter-spacing: -0.01em; line-height: 1.3;
+}
+.case-card-desc { 
+  font-size: 0.85rem; color: rgba(255,255,255,0.75); 
+  margin-top: 0.5rem; font-weight: 400;
+}
+.case-card-arrow {
+  position: absolute; top: 1.5rem; right: 1.5rem; z-index: 2;
+  width: 36px; height: 36px; border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 0.85rem; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0; transform: translate(-8px, 8px);
+}
+.case-card:hover .case-card-arrow { opacity: 1; transform: translate(0, 0); }
+.case-card:hover .case-card-arrow:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ===== GALLERY ===== */
+.gallery-section { 
+  padding: 8rem 0; overflow: hidden; 
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.gallery-header {
+  padding: 0 2rem; max-width: 1400px; margin: 0 auto 4rem;
+  display: flex; justify-content: space-between; align-items: flex-end;
+}
+.gallery-track-wrapper {
+  position: relative; overflow: hidden; padding: 0 2rem;
+}
+.gallery-row {
+  display: flex; gap: 1.2rem; margin-bottom: 1.2rem;
+  width: max-content;
+}
+.gallery-row:nth-child(1) { animation: scrollRow1 80s linear infinite; }
+.gallery-row:nth-child(2) { animation: scrollRow2 85s linear infinite; }
+.gallery-row:nth-child(3) { animation: scrollRow3 80s linear infinite; }
+.gallery-row:hover { animation-play-state: paused; }
+
+@keyframes scrollRow1 { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+@keyframes scrollRow2 { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+@keyframes scrollRow3 { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+.gallery-item {
+  flex-shrink: 0; width: 300px; height: 200px;
+  border-radius: var(--radius-sm); overflow: hidden; cursor: pointer;
+  background: #e8e8ed; box-shadow: var(--shadow-sm);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+.gallery-item:hover { transform: scale(1.05); box-shadow: var(--shadow-md); }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; }
+.gallery-item:hover img { transform: scale(1.08); }
+
+/* ===== VIDEO SHOWCASE ===== */
+.video-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+@media (max-width: 900px) { .video-grid { grid-template-columns: 1fr; } }
+
+.video-card {
+  position: relative; overflow: hidden; border-radius: var(--radius);
+  background: #0b0b0d; cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+}
+.video-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+.video-card video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.video-card-main { aspect-ratio: 16/9; }
+.video-card-side { width: min(100%, 300px); aspect-ratio: 9/16; margin: 0 auto; }
+
+.video-side { display: flex; flex-direction: column; align-items: center; }
+
+.video-overlay {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.35) 100%);
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+.video-overlay.hidden { opacity: 0; visibility: hidden; }
+
+.video-play-btn {
+  width: 72px; height: 72px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: #fff; font-size: 1.3rem; padding-left: 5px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.video-card:hover .video-play-btn { transform: scale(1.1); border-color: var(--accent); background: var(--accent); }
+
+.video-overlay-title { color: #fff; font-size: 1rem; font-weight: 600; letter-spacing: 0.2em; }
+.video-overlay-sub {
+  color: rgba(255,255,255,0.6); font-size: 10px;
+  letter-spacing: 0.35em; text-transform: uppercase; font-weight: 600;
+}
+
+.video-meta { margin-top: 1.4rem; }
+.video-meta-cat {
+  font-size: 10px; letter-spacing: 0.3em; color: var(--accent);
+  text-transform: uppercase; font-weight: 700; margin-bottom: 0.4rem;
+}
+.video-meta-title { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
+.video-meta-desc { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.3rem; font-weight: 400; }
+
+/* ===== LIGHTBOX ===== */
+.lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(251, 251, 253, 0.97);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  display: flex; justify-content: center; align-items: center;
+  opacity: 0; visibility: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lightbox.active { opacity: 1; visibility: visible; }
+.lightbox-img {
+  max-width: 85vw; max-height: 82vh; object-fit: contain;
+  border-radius: 20px; box-shadow: var(--shadow-lg);
+  transform: scale(0.92) translateY(20px);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lightbox.active .lightbox-img { transform: scale(1) translateY(0); }
+.lightbox-close {
+  position: absolute; top: 2rem; right: 2.5rem;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  color: var(--text-secondary); font-size: 1.1rem; cursor: pointer;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-sm); transition: all 0.3s; font-weight: 500;
+}
+.lightbox-close:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.lightbox-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  color: var(--text-primary); font-size: 1.4rem; cursor: pointer; padding: 0;
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-md); transition: all 0.3s; font-weight: 300;
+}
+.lightbox-nav:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.lightbox-prev { left: 2.5rem; }
+.lightbox-next { right: 2.5rem; }
+.lightbox-caption {
+  position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%); text-align: center;
+}
+.lightbox-caption h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.3rem; }
+.lightbox-caption p { font-size: 0.85rem; color: var(--text-secondary); font-weight: 400; }
+.lightbox-counter {
+  position: absolute; top: 2.5rem; left: 2.5rem;
+  font-size: 0.8rem; color: var(--text-tertiary); font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center; padding: 6rem 2rem;
+  border-top: 1px solid var(--border); background: var(--bg);
+}
+.footer-brand { 
+  font-size: 1.8rem; font-weight: 800; letter-spacing: 0.12em; 
+  margin-bottom: 0.8rem; color: var(--text-primary);
+}
+.footer-brand span { color: var(--accent); }
+.footer-sub { 
+  font-size: 0.75rem; color: var(--text-tertiary); 
+  letter-spacing: 0.25em; font-weight: 500; margin-bottom: 3rem;
+  text-transform: uppercase;
+}
+.footer p { font-size: 0.7rem; color: var(--text-tertiary); font-weight: 400; }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="mainNav">
+  <div class="nav-brand" onclick="scrollToSection('hero')">HIK<span>VISION</span></div>
+  <div class="nav-links">
+    <a class="nav-link" onclick="scrollToSection('hero')">Home</a>
+    <a class="nav-link" onclick="scrollToSection('cases')">Cases</a>
+    <a class="nav-link" onclick="scrollToSection('video')">Video</a>
+    <a class="nav-link" onclick="scrollToSection('gallery')">Gallery</a>
+  </div>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-label">AIGC Visual Design Training · 2026</div>
+    <h1 class="hero-title-single">
+      <span class="hero-title-main">PRODUCT</span><span class="hero-title-accent"> VISUAL DESIGN</span>
+    </h1>
+    <div class="hero-divider"></div>
+    <p class="hero-desc">
+      海康威视 AI 视觉设计培训项目<br>
+      围绕六大核心方向，从单产品到多场景的完整视觉表达
+    </p>
+    <div class="hero-meta">2 0 2 6</div>
+  </div>
+  <div class="hero-scroll" id="heroScroll" onclick="scrollToSection('cases')">
+    <div class="hero-scroll-track">
+      <div class="hero-scroll-progress" id="heroScrollProgress"></div>
+      <div class="hero-scroll-tip"></div>
+    </div>
+    <span class="hero-scroll-text">Scroll</span>
+    <span class="hero-scroll-arrow">↓</span>
+  </div>
+</section>
+
+<section class="section" id="cases">
+  <div class="section-header">
+    <div class="section-label">CASE STUDIES</div>
+    <h2 class="section-title">六大<span>案例</span>方向</h2>
+    <p class="section-desc">围绕6大案例方向，从单产品海报到动态交互的完整视觉表达</p>
+  </div>
+  <div class="cases-grid" id="casesGrid"></div>
+</section>
+
+<section class="section" id="video">
+  <div class="section-header">
+    <div class="section-label">FEATURED VIDEO</div>
+    <h2 class="section-title">功能动画<span>成片</span></h2>
+    <p class="section-desc">从静态分镜到动态成片的完整演绎 · 横屏完整版与竖屏适配版</p>
+  </div>
+  <div class="video-grid">
+    <div>
+      <div class="video-card video-card-main" id="mainVideoCard">
+        <video src="功能动画成片/海康威视功能动画-1080P最终版.mp4" preload="metadata" playsinline></video>
+        <div class="video-overlay">
+          <div class="video-play-btn">▶</div>
+          <div class="video-overlay-title">点击播放</div>
+          <div class="video-overlay-sub">Final Cut · 1080P · 有声</div>
+        </div>
+      </div>
+      <div class="video-meta">
+        <div class="video-meta-cat">Final Cut · 1920 × 1080</div>
+        <div class="video-meta-title">海康威视功能动画 · 最终版</div>
+        <div class="video-meta-desc">横屏完整成片 · 2026.10.28 定稿</div>
+      </div>
+    </div>
+    <div class="video-side">
+      <div class="video-card video-card-side">
+        <video src="功能动画成片/竖屏.mp4" muted autoplay loop playsinline></video>
+      </div>
+      <div class="video-meta" style="text-align:center">
+        <div class="video-meta-cat">Vertical · 1080 × 1920</div>
+        <div class="video-meta-title">竖屏适配版</div>
+        <div class="video-meta-desc">移动端传播 · 循环预览</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="gallery-section" id="gallery">
+  <div class="gallery-header">
+    <div class="section-header" style="margin-bottom:0">
+      <div class="section-label">PORTFOLIO</div>
+      <h2 class="section-title">全部<span>作品</span></h2>
+    </div>
+    <p class="section-desc" style="text-align:right">共收录 95 张设计产出 · 悬停暂停</p>
+  </div>
+  <div class="gallery-track-wrapper">
+    <div class="gallery-row" id="row1"></div>
+    <div class="gallery-row" id="row2"></div>
+    <div class="gallery-row" id="row3"></div>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <span class="lightbox-counter" id="lightboxCounter"></span>
+  <button class="lightbox-nav lightbox-prev" onclick="prevLightbox()">‹</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="">
+  <button class="lightbox-nav lightbox-next" onclick="nextLightbox()">›</button>
+  <div class="lightbox-caption"><h3 id="lightboxTitle"></h3><p id="lightboxDesc"></p></div>
+</div>
+
+<footer class="footer" id="footer">
+  <div class="footer-brand">HIK<span>VISION</span></div>
+  <p class="footer-sub">AIGC Visual Design Training · 2026</p>
+  <p>© 2026 HIKVISION. All rights reserved.</p>
+</footer>
+
+<script>
+var imageData = [
+  { file: '道闸产品组合/功能演示封面.jpg', title: '功能演示封面', desc: '功能演示动画分镜', category: '功能演示动画分镜' },
+  { file: '天车场景/人物互动海报封面.jpg', title: '人物互动海报封面', desc: '产品+人物互动', category: '产品+人物互动' },
+  { file: '人物与产品/产品场景海报封面.jpg', title: '产品场景海报封面', desc: '产品场景海报', category: '产品+场景海报' },
+  { file: '场景生成测试/多产品海报封面.jpg', title: '多产品海报封面', desc: '多产品组合设计', category: '多产品海报' },
+  { file: '产品参考图/单产品海报封面.jpg', title: '单产品海报封面', desc: '产品视觉设计', category: '单产品海报' },
+  { file: '产品参考图/抠图.png', title: '产品抠图', desc: '透明背景处理', category: '单产品海报' },
+  { file: '产品参考图/单视角产品细节参考图.jpg', title: '产品细节图', desc: '单视角特写', category: '单产品海报' },
+  { file: '产品参考图/产品细节图（单视角）.jpg', title: '产品细节图2', desc: '单视角特写', category: '单产品海报' },
+  { file: '产品参考图/图片节点 30.jpg', title: '节点设计', desc: '流程节点图', category: '单产品海报' },
+  { file: '产品参考图/图片节点 30_副本.jpg', title: '节点设计副本', desc: '流程节点图', category: '单产品海报' },
+  { file: '产品参考图/3.jpg', title: '产品参考图', desc: '参考资料', category: '单产品海报' },
+  { file: '产品参考图/4.jpg', title: '产品参考图', desc: '参考资料', category: '单产品海报' },
+  { file: '产品参考图/6.jpg', title: '产品参考图', desc: '参考资料', category: '单产品海报' },
+  { file: '角度变化/三视图.jpg', title: '三视图', desc: '标准三视图', category: '单产品海报' },
+  { file: '角度变化/产出.jpg', title: '最终产出', desc: '优化后效果', category: '单产品海报' },
+  { file: '角度变化/1.jpg', title: '角度变化1', desc: '多角度测试', category: '单产品海报' },
+  { file: '角度变化/2.jpg', title: '角度变化2', desc: '多角度测试', category: '单产品海报' },
+  { file: '角度变化/3.jpg', title: '角度变化3', desc: '多角度测试', category: '单产品海报' },
+  { file: '角度变化/4.jpg', title: '角度变化4', desc: '多角度测试', category: '单产品海报' },
+  { file: '角度变化/抗震相机2/抗震相机2-有雨刷有补光灯-正面.png', title: '抗震相机正面', desc: '正面视图', category: '单产品海报' },
+  { file: '角度变化/抗震相机2/抗震相机2-有雨刷有补光灯-左侧.png', title: '抗震相机左侧', desc: '左侧视图', category: '单产品海报' },
+  { file: '角度变化/抗震相机2/抗震相机2-有雨刷有补光灯-右侧.png', title: '抗震相机右侧', desc: '右侧视图', category: '单产品海报' },
+  { file: 'Led产品/海报/人物.jpg', title: 'LED海报', desc: '人物场景海报', category: '单产品海报' },
+  { file: '道闸产品组合/1.jpg', title: '道闸场景第一轮', desc: '第一轮效果图', category: '多产品海报' },
+  { file: '道闸产品组合/2.jpg', title: '道闸场景第二轮', desc: '第二轮效果图', category: '多产品海报' },
+  { file: '道闸产品组合/3.jpg', title: '道闸场景第三轮', desc: '第三轮效果图', category: '多产品海报' },
+  { file: '道闸产品组合/成稿1.jpg', title: '道闸成稿', desc: '最终效果图', category: '多产品海报' },
+  { file: '道闸产品组合/成稿2.jpg', title: '道闸成稿2', desc: '最终效果图', category: '多产品海报' },
+  { file: '道闸产品组合/多机位九宫格.jpg', title: '九宫格', desc: '多角度对比', category: '多产品海报' },
+  { file: '道闸产品组合/多机位九宫格 (1).jpg', title: '九宫格版本2', desc: '多角度对比', category: '多产品海报' },
+  { file: '道闸产品组合/ps拼图.jpg', title: 'PS拼图', desc: '多产品合成', category: '多产品海报' },
+  { file: '道闸产品组合/单通道.jpg', title: '单通道', desc: '单通道设计', category: '多产品海报' },
+  { file: '道闸产品组合/监控.jpg', title: '监控视角', desc: '监控视角设计', category: '多产品海报' },
+  { file: '道闸产品组合/镜头方向.jpg', title: '镜头方向', desc: '镜头方向设计', category: '多产品海报' },
+  { file: '道闸产品组合/第三轮.jpg', title: '第三轮', desc: '第三轮迭代', category: '多产品海报' },
+  { file: '道闸产品组合/比例失调.jpg', title: '比例测试', desc: '比例调整测试', category: '多产品海报' },
+  { file: '道闸产品组合/通行优化.jpg', title: '通行优化', desc: '通行体验优化', category: '多产品海报' },
+  { file: '道闸产品组合/图片8.jpg', title: '场景图8', desc: '道闸场景', category: '多产品海报' },
+  { file: '道闸产品组合/图片9.jpg', title: '场景图9', desc: '道闸场景', category: '多产品海报' },
+  { file: '道闸产品组合/图片10.jpg', title: '场景图10', desc: '道闸场景', category: '多产品海报' },
+  { file: '道闸产品组合/图片11.jpg', title: '场景图11', desc: '道闸场景', category: '多产品海报' },
+  { file: '道闸产品组合/图片12.jpg', title: '场景图12', desc: '道闸场景', category: '多产品海报' },
+  { file: '道闸产品组合/图片13.jpg', title: '场景图13', desc: '道闸场景', category: '多产品海报' },
+  { file: '道闸产品组合/图片14.jpg', title: '场景图14', desc: '道闸场景', category: '多产品海报' },
+  { file: '场景生成测试/图片1.jpg', title: '场景生成1', desc: '多主体测试', category: '产品+人物互动' },
+  { file: '场景生成测试/图片2.jpg', title: '场景生成2', desc: '多主体测试', category: '产品+人物互动' },
+  { file: '场景生成测试/图片3.jpg', title: '场景生成3', desc: '多主体测试', category: '产品+人物互动' },
+  { file: '场景生成测试/图片4.jpg', title: '场景生成4', desc: '多主体测试', category: '产品+人物互动' },
+  { file: '场景生成测试/图片5.jpg', title: '场景生成5', desc: '多主体测试', category: '产品+人物互动' },
+  { file: '场景生成测试/图片6.jpg', title: '场景生成6', desc: '多主体测试', category: '产品+人物互动' },
+  { file: '场景生成测试/图片7.jpg', title: '场景生成7', desc: '多主体测试', category: '产品+人物互动' },
+  { file: '场景生成测试/组合产品.jpg', title: '组合产品', desc: '多产品场景', category: '多产品海报' },
+  { file: '场景生成测试/组合产品2.jpg', title: '组合产品2', desc: '另一角度', category: '多产品海报' },
+  { file: '场景生成测试/精准度/1.jpg', title: '精准度测试1', desc: '细节对比', category: '产品+人物互动' },
+  { file: '场景生成测试/精准度/2.jpg', title: '精准度测试2', desc: '细节对比', category: '产品+人物互动' },
+  { file: '人物与产品/1.jpg', title: '快递员场景', desc: '产品应用场景', category: '产品+场景海报' },
+  { file: '人物与产品/2.jpg', title: '人物场景', desc: '互动场景', category: '产品+场景海报' },
+  { file: '人物与产品/3.jpg', title: '产品场景', desc: '使用情境', category: '产品+场景海报' },
+  { file: '分镜控图/人物/保安_1.jpg', title: '保安角色1', desc: '角色设定', category: '静态海报动态化' },
+  { file: '分镜控图/人物/保安_2.jpg', title: '保安角色2', desc: '角色设定', category: '静态海报动态化' },
+  { file: '分镜控图/人物/司机三视图.jpg', title: '司机三视图', desc: '角色三视图', category: '静态海报动态化' },
+  { file: '分镜控图/人物/司机正视图.jpg', title: '司机正视图', desc: '角色正面图', category: '静态海报动态化' },
+  { file: '分镜控图/分镜前期拼图/大场景拼图.jpg', title: '大场景拼图', desc: '前期构思', category: '静态海报动态化' },
+  { file: '分镜控图/分镜前期拼图/空镜拼图.jpg', title: '空镜拼图', desc: '前期构思', category: '静态海报动态化' },
+  { file: '分镜控图/分镜前期拼图/空镜拼图(摄像头锁定）.jpg', title: '空镜拼图（摄像头锁定版）', desc: '前期构思', category: '静态海报动态化' },
+  { file: '分镜控图/分镜前期拼图/特写拼图02.jpg', title: '特写拼图02', desc: '前期构思', category: '静态海报动态化' },
+  { file: '分镜控图/分镜前期拼图/摄像机特写（绿色通行）.jpg', title: '摄像机特写', desc: '前期构思', category: '静态海报动态化' },
+  { file: '分镜控图/分镜前期拼图/视频分镜-产品特写-拼图02.jpg', title: '产品特写拼图', desc: '前期构思', category: '静态海报动态化' },
+  { file: '分镜控图/分镜头图片（粗略控图）/1.jpg', title: '粗控图1', desc: '草稿阶段', category: '静态海报动态化' },
+  { file: '分镜控图/分镜头图片（粗略控图）/2.jpg', title: '粗控图2', desc: '草稿阶段', category: '静态海报动态化' },
+  { file: '分镜控图/分镜头图片（粗略控图）/3.jpg', title: '粗控图3', desc: '草稿阶段', category: '静态海报动态化' },
+  { file: '分镜控图/分镜头图片（粗略控图）/4.jpg', title: '粗控图4', desc: '草稿阶段', category: '静态海报动态化' },
+  { file: '分镜控图/分镜头图片（粗略控图）/5.jpg', title: '粗控图5', desc: '草稿阶段', category: '静态海报动态化' },
+  { file: '分镜控图/分镜头图片（粗略控图）/6-1.jpg', title: '粗控图6-1', desc: '草稿阶段', category: '静态海报动态化' },
+  { file: '分镜控图/分镜头图片（粗略控图）/6-2.jpg', title: '粗控图6-2', desc: '草稿阶段', category: '静态海报动态化' },
+  { file: '分镜控图/分镜头图片（粗略控图）/7.jpg', title: '粗控图7', desc: '草稿阶段', category: '静态海报动态化' },
+  { file: '分镜控图/分镜头图片（粗略控图）/8.jpg', title: '粗控图8', desc: '草稿阶段', category: '静态海报动态化' },
+  { file: '分镜控图/分镜头图片（粗略控图）/9.jpg', title: '粗控图9', desc: '草稿阶段', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/01开头空镜.jpg', title: '分镜01开头空镜', desc: '开头空镜', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/02雷达与对讲机（特写）.jpg', title: '分镜02雷达特写', desc: '设备特写', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/02雷达特写.jpg', title: '分镜02雷达特写PNG', desc: '设备特写', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/03对讲机特写.jpg', title: '分镜03对讲机特写', desc: '设备特写', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/04ANPR+闸道.jpg', title: '分镜04ANPR相机', desc: '设备特写', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/05黑车红灯未通过.jpg', title: '分镜05异常通行', desc: '场景表现', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/05黑车识别通过（屏幕提示）.jpg', title: '分镜05识别通过', desc: '场景表现', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/06轿车红灯未通过（屏显）.jpg', title: '分镜06红灯未通过', desc: '场景表现', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/06轿车绿灯通过（屏显）.jpg', title: '分镜06绿灯通过', desc: '场景表现', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/07刷卡.jpg', title: '分镜07刷卡确认', desc: '交互场景', category: '静态海报动态化' },
+  { file: '分镜控图/分镜完成/08放行.jpg', title: '分镜08道闸放行', desc: '结束场景', category: '静态海报动态化' },
+  { file: '分镜控图/分镜效果图/浅色车-绿色通行.jpg', title: '效果图绿色通行', desc: '最终效果', category: '静态海报动态化' },
+  { file: '分镜控图/分镜效果图/浅色车刷卡通过.jpg', title: '效果图刷卡通过', desc: '最终效果', category: '静态海报动态化' },
+  { file: '分镜控图/分镜效果图/浅色车刷卡通过-未刷卡.jpg', title: '效果图未刷卡', desc: '最终效果', category: '静态海报动态化' },
+  { file: '分镜控图/分镜效果图/浅色车-红色未通行.jpg', title: '效果图红色未通行', desc: '最终效果', category: '静态海报动态化' },
+  { file: '分镜控图/分镜效果图/黑车-绿灯通行.jpg', title: '效果图黑车绿灯', desc: '最终效果', category: '静态海报动态化' },
+  { file: '分镜控图/分镜效果图/黑车-红灯未通行.jpg', title: '效果图黑车红灯', desc: '最终效果', category: '静态海报动态化' },
+  { file: '天车场景/天车场景.jpg', title: '天车场景', desc: '工业场景', category: '功能演示动画分镜' },
+  { file: '天车场景/2.jpg', title: '天车场景迭代', desc: '迭代优化', category: '功能演示动画分镜' },
+  { file: '天车场景/3.jpg', title: '天车场景迭代', desc: '迭代优化', category: '功能演示动画分镜' },
+  { file: '天车场景/4.jpg', title: '天车场景迭代', desc: '迭代优化', category: '功能演示动画分镜' },
+];
+
+var cases = [
+{ title: '单产品海报', desc: 'Product Visual Design', img: '产品参考图/单产品海报封面.jpg' },
+  { title: '多产品海报', desc: 'Multi-Product Composition', img: '场景生成测试/多产品海报封面.jpg' },
+  { title: '产品+场景海报', desc: 'Product + Scene', img: '人物与产品/产品场景海报封面.jpg' },
+  { title: '产品+人物互动', desc: 'Product + Human Interaction', img: '天车场景/人物互动海报封面.jpg' },
+  { title: '静态海报动态化', desc: 'Static to Dynamic', type: 'video', src: '交互动画/案例5封面.mp4' },
+  { title: '功能演示动画分镜', desc: 'Storyboard Animation', img: '道闸产品组合/功能演示封面.jpg' },
+];
+
+var currentIndex = 0;
+
+function renderCases() {
+  var grid = document.getElementById('casesGrid');
+  cases.forEach(function(c, i) {
+    var card = document.createElement('div');
+    card.className = 'case-card';
+    var titleClean = c.title;
+    if (c.type === 'video') {
+      card.innerHTML = '<div class="case-card-img-wrap"><video src="' + c.src + '" muted autoplay loop playsinline></video><div class="case-card-info"><div class="case-card-cat">' + c.desc + '</div><div class="case-card-title">' + titleClean + '</div></div></div><div class="case-card-arrow">↗</div>';
+      card.querySelector('video').addEventListener('error', function() { this.parentElement.style.background = '#e8e8ed'; });
+    } else {
+      card.innerHTML = '<div class="case-card-img-wrap"><img src="' + c.img + '" alt="' + titleClean + '" loading="lazy"><div class="case-card-info"><div class="case-card-cat">' + c.desc + '</div><div class="case-card-title">' + titleClean + '</div></div></div><div class="case-card-arrow">↗</div>';
+      card.querySelector('img').addEventListener('error', function() { this.parentElement.style.background = '#e8e8ed'; });
+    }
+    grid.appendChild(card);
+    setTimeout(function(el) { el.classList.add('visible'); }, 80 + i * 100, card);
+  });
+}
+
+function setupMainVideo() {
+  var card = document.getElementById('mainVideoCard');
+  if (!card) return;
+  var video = card.querySelector('video');
+  var overlay = card.querySelector('.video-overlay');
+  card.addEventListener('click', function() {
+    if (video.paused) { video.muted = false; video.play(); }
+    else { video.pause(); }
+  });
+  video.addEventListener('play', function() { overlay.classList.add('hidden'); });
+  video.addEventListener('pause', function() { if (!video.seeking) overlay.classList.remove('hidden'); });
+  video.addEventListener('ended', function() { overlay.classList.remove('hidden'); video.currentTime = 0; });
+}
+
+function renderGallery() {
+  var rows = [[], [], []];
+  imageData.forEach(function(item, i) {
+    rows[i % 3].push(item);
+  });
+  rows.forEach(function(rowItems, rowIdx) {
+    var container = document.getElementById('row' + (rowIdx + 1));
+    var allItems = rowItems.concat(rowItems);
+    allItems.forEach(function(item) {
+      var el = document.createElement('div');
+      el.className = 'gallery-item';
+      el.innerHTML = '<img src="' + item.file + '" alt="' + item.title + '" loading="lazy">';
+      el.addEventListener('click', function() {
+        var idx = imageData.findIndex(function(it) { return it.title === item.title; });
+        openLightbox(idx >= 0 ? idx : 0);
+      });
+      el.querySelector('img').addEventListener('error', function() { this.parentElement.style.background = '#e8e8ed'; });
+      container.appendChild(el);
+    });
+  });
+}
+
+var lightbox = document.getElementById('lightbox');
+var lightboxImg = document.getElementById('lightboxImg');
+var lightboxTitle = document.getElementById('lightboxTitle');
+var lightboxDesc = document.getElementById('lightboxDesc');
+var lightboxCounter = document.getElementById('lightboxCounter');
+
+function openLightbox(index) {
+  currentIndex = index;
+  showLightboxImage();
+  lightbox.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() { lightbox.classList.remove('active'); document.body.style.overflow = ''; }
+function showLightboxImage() {
+  var img = imageData[currentIndex];
+  if (!img) return;
+  lightboxImg.src = img.file;
+  lightboxImg.alt = img.title;
+  lightboxTitle.textContent = img.title;
+  lightboxDesc.textContent = img.category + ' · ' + img.desc;
+  lightboxCounter.textContent = String(currentIndex+1).padStart(2,'0') + ' / ' + String(imageData.length).padStart(2,'0');
+}
+function nextLightbox() { currentIndex = (currentIndex+1) % imageData.length; showLightboxImage(); }
+function prevLightbox() { currentIndex = (currentIndex-1+imageData.length) % imageData.length; showLightboxImage(); }
+
+document.addEventListener('keydown', function(e) {
+  if (!lightbox.classList.contains('active')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowRight') nextLightbox();
+  if (e.key === 'ArrowLeft') prevLightbox();
+});
+
+var tsx = 0;
+lightbox.addEventListener('touchstart', function(e) { tsx = e.changedTouches[0].screenX; });
+lightbox.addEventListener('touchend', function(e) {
+  var dx = e.changedTouches[0].screenX - tsx;
+  if (Math.abs(dx) > 50) { dx < 0 ? nextLightbox() : prevLightbox(); }
+});
+
+var lastScroll = 0;
+var autoScrolling = false;
+var scrollTriggerArmed = true;
+var suppressAutoUntil = 0;
+var heroScrollEl = document.getElementById('heroScroll');
+var heroScrollProgressEl = document.getElementById('heroScrollProgress');
+var heroScrollTextEl = heroScrollEl ? heroScrollEl.querySelector('.hero-scroll-text') : null;
+
+function easeOutQuart(t) {
+  return 1 - Math.pow(1 - t, 4);
+}
+
+function autoScrollToCases() {
+  var cases = document.getElementById('cases');
+  if (!cases) return;
+  autoScrolling = true;
+  heroScrollEl.classList.add('stretching');
+  function lockInput(e) { e.preventDefault(); }
+  window.addEventListener('wheel', lockInput, { passive: false });
+  window.addEventListener('touchmove', lockInput, { passive: false });
+  var startY = window.pageYOffset;
+  var targetY = cases.getBoundingClientRect().top + window.pageYOffset;
+  var duration = 900;
+  var startT = null;
+  document.documentElement.style.scrollBehavior = 'auto';
+  function step(ts) {
+    if (startT === null) startT = ts;
+    var t = Math.min((ts - startT) / duration, 1);
+    var e = easeOutQuart(t);
+    window.scrollTo(0, startY + (targetY - startY) * e);
+    if (t < 1) requestAnimationFrame(step);
+    else {
+      autoScrolling = false;
+      document.documentElement.style.scrollBehavior = '';
+      window.removeEventListener('wheel', lockInput);
+      window.removeEventListener('touchmove', lockInput);
+      setTimeout(function() { heroScrollEl.classList.remove('stretching'); }, 300);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+window.addEventListener('scroll', function() {
+  var st = window.pageYOffset;
+  var nav = document.getElementById('mainNav');
+  var hero = document.getElementById('hero');
+  var heroH = hero ? hero.offsetHeight : window.innerHeight;
+  if (st > lastScroll && st > 80) nav.classList.add('hidden');
+  else nav.classList.remove('hidden');
+  var scrollingDown = st > lastScroll;
+  lastScroll = st;
+  if (heroScrollEl && heroScrollProgressEl) {
+    var p = Math.min(st / (heroH * 0.85), 1);
+    heroScrollProgressEl.style.height = (p * 100) + '%';
+    heroScrollEl.style.opacity = String(1 - p * 0.8);
+    if (heroScrollTextEl) heroScrollTextEl.style.color = p >= 0.95 ? 'var(--accent)' : '';
+  }
+  if (st < heroH * 0.25) scrollTriggerArmed = true;
+  if (!autoScrolling && scrollingDown && scrollTriggerArmed && Date.now() > suppressAutoUntil
+      && st > heroH * 0.5 && st < heroH * 0.92) {
+    scrollTriggerArmed = false;
+    autoScrollToCases();
+  }
+});
+
+function scrollToSection(id) {
+  suppressAutoUntil = Date.now() + 1800;
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+window.addEventListener('load', function() {
+  renderCases();
+  setupMainVideo();
+  renderGallery();
+});
+</script>
+</body>
+</html>

@@ -90,11 +90,14 @@
             </div>
           </div>
 
-          <!-- 作品卡片 5：海康威视海外口播广告 · 上面视频 + 下面展示图 -->
+          <!-- 作品卡片 5：海康威视海外口播广告 · 上面视频 + 中间培训网站 + 下面展示图 -->
           <div class="work-card" data-project
                data-title="海康威视海外口播广告 · AI口播广告"
                data-video="./assets/videos/hikvision-led.mp4"
                data-poster="./assets/images/hikvision-cover.jpg"
+               data-site="./external/hikvision/index.html"
+               data-siteurl="https://1710287362-cpu.github.io/hikvision-website/"
+               data-sitecaption="海康威视 AIGC 视觉设计培训网站 · 可滚动浏览"
                data-imgs="./assets/images/hikvision-poster-1.jpg,./assets/images/hikvision-poster-2.jpg,./assets/images/hikvision-poster-3.jpg">
             <img class="thumb" src="./assets/images/hikvision-cover.jpg" alt="海康威视海外口播广告封面" />
             <div class="overlay">
@@ -177,12 +180,13 @@
       </div>
       <div class="project-viewer-body">
         <video id="projectViewerVideo" controls playsinline webkit-playsinline x5-playsinline></video>
+        <div class="project-viewer-caption" id="projectViewerSiteCaption" style="display:none"></div>
         <iframe id="projectViewerSite" class="project-viewer-site" src="" title="作品网页预览"></iframe>
         <div class="project-viewer-caption" id="projectViewerCaption">创意提案 · 排版设计</div>
         <div class="project-viewer-imgs" id="projectViewerImgs"></div>
       </div>
     </div>
 
-    <script src="./scripts/main.js?v=20261026f"></script>
+    <script src="./scripts/main.js?v=20261029a"></script>
   </body>
 </html>

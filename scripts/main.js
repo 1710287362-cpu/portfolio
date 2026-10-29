@@ -253,14 +253,9 @@
     /* 清理上一次的多视频容器 */
     var multiOld = document.getElementById('projectViewerVideos');
     if (multiOld) multiOld.remove();
-    if (site && projectViewerSite) {
-      /* 网页设计类项目：顶部嵌入网页 */
-      projectViewerSite.style.display = 'block';
-      projectViewerSite.src = site;
-      if (projectViewerVideo) projectViewerVideo.style.display = 'none';
-    } else if (projectViewerVideo) {
-      /* 视频类项目：顶部播放视频（data-video 支持逗号分隔多条） */
-      var videoList = (card.getAttribute('data-video') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    /* 视频区（data-video 支持逗号分隔多条）；与网页嵌入互不排斥 */
+    var videoList = (card.getAttribute('data-video') || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    if (projectViewerVideo) {
       if (videoList.length > 1) {
         projectViewerVideo.style.display = 'none';
         projectViewerVideo.removeAttribute('src');
@@ -288,12 +283,34 @@
           vWrap.appendChild(v);
         });
         projectViewerVideo.parentNode.insertBefore(vWrap, projectViewerVideo.nextSibling);
-      } else {
+      } else if (videoList.length === 1) {
         projectViewerVideo.style.display = '';
         projectViewerVideo.src = videoList[0] || '';
         projectViewerVideo.poster = card.getAttribute('data-poster') || '';
+      } else {
+        projectViewerVideo.style.display = 'none';
+        projectViewerVideo.removeAttribute('src');
+        projectViewerVideo.load();
       }
-      if (projectViewerSite) projectViewerSite.style.display = 'none';
+    }
+    /* 网页嵌入区：有 data-site 时显示在视频下方（可滚动浏览） */
+    if (projectViewerSite) {
+      if (site) {
+        projectViewerSite.style.display = 'block';
+        projectViewerSite.src = site;
+      } else {
+        projectViewerSite.style.display = 'none';
+        projectViewerSite.src = '';
+      }
+    }
+    var siteCaption = document.getElementById('projectViewerSiteCaption');
+    if (siteCaption) {
+      if (site) {
+        siteCaption.textContent = card.getAttribute('data-sitecaption') || '培训网站演示 · 可滚动浏览';
+        siteCaption.style.display = 'flex';
+      } else {
+        siteCaption.style.display = 'none';
+      }
     }
     if (projectViewerCaption) {
       projectViewerCaption.textContent = card.getAttribute('data-caption') || '创意提案 · 排版设计';
