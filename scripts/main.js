@@ -298,9 +298,15 @@
       if (site) {
         projectViewerSite.style.display = 'block';
         projectViewerSite.src = site;
+        /* 部分内核不支持 aspect-ratio，用 JS 按实际宽度给出 16:9 高度兜底 */
+        requestAnimationFrame(function () {
+          var w = projectViewerSite.clientWidth;
+          if (w > 0) projectViewerSite.style.height = Math.round(w * 9 / 16) + 'px';
+        });
       } else {
         projectViewerSite.style.display = 'none';
         projectViewerSite.src = '';
+        projectViewerSite.style.height = '';
       }
     }
     var siteCaption = document.getElementById('projectViewerSiteCaption');
@@ -349,6 +355,15 @@
   }
 
   if (projectViewerBack) projectViewerBack.addEventListener('click', closeProjectViewer);
+
+  /* 窗口尺寸变化时，保持内嵌网页 16:9 高度（内核不支持 aspect-ratio 的兜底） */
+  window.addEventListener('resize', function () {
+    if (projectViewerSite && projectViewer.classList && projectViewer.classList.contains('show')
+        && projectViewerSite.style.display !== 'none') {
+      var w = projectViewerSite.clientWidth;
+      if (w > 0) projectViewerSite.style.height = Math.round(w * 9 / 16) + 'px';
+    }
+  });
 
   /* ---------- 项目卡片点击：详情 / 外链（站内预览） / 播放视频 ---------- */
   function bindCardClick(card) {
