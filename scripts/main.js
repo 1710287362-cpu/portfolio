@@ -23,12 +23,27 @@
   var resumeBtn = document.getElementById('btnResume');
   var resumeModal = document.getElementById('resumeModal');
   var closeModalBtn = document.getElementById('closeModal');
+  var doDownloadBtn = document.getElementById('do-download');
+  var openResumeBtn = document.getElementById('btn-open-resume');
+  var RESUME_URL = './assets/images/resume.png';
 
   function openResumeModal() {
     if (resumeModal) resumeModal.classList.add('show');
   }
 
+  function downloadResume() {
+    var a = document.createElement('a');
+    a.href = RESUME_URL;
+    a.download = '沈奕旸-简历.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    if (resumeModal) resumeModal.classList.remove('show');
+  }
+
   if (resumeBtn) resumeBtn.addEventListener('click', openResumeModal);
+  if (openResumeBtn) openResumeBtn.addEventListener('click', openResumeModal);
+  if (doDownloadBtn) doDownloadBtn.addEventListener('click', downloadResume);
   if (closeModalBtn && resumeModal) {
     closeModalBtn.addEventListener('click', function () {
       resumeModal.classList.remove('show');
