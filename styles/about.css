@@ -170,6 +170,9 @@
 /* 简历预览 */
 .resume-section {
   margin-top: 70px;
+  /* 突破 about-inner 的 1120px 限制，接近全屏 */
+  margin-left: calc(50% - 50vw + 20px);
+  margin-right: calc(50% - 50vw + 20px);
 }
 .resume-section h3 {
   display: flex;
@@ -186,14 +189,13 @@
   background: var(--orange);
 }
 .resume-frame {
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
-}
-.resume-frame img {
+}.resume-frame img {
   display: block;
   width: 100%;
   height: auto;
