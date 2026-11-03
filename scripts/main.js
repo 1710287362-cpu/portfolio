@@ -194,6 +194,38 @@
     });
   }
 
+  /* 移动端：桌面布局的子站在窄屏下按比例缩放显示（iframe 内 viewport meta 不生效，只能缩放 iframe） */
+  var MOBILE_LAYOUT_WIDTH = 820;
+  var SCALED_SITES = ['shuangshou', 'fengjing'];
+
+  function siteNeedsMobileScale(url) {
+    if (window.innerWidth >= MOBILE_LAYOUT_WIDTH) return false;
+    return SCALED_SITES.some(function (k) { return url.indexOf(k) !== -1; });
+  }
+
+  function applySiteFrameScale(url) {
+    if (!siteFrame) return;
+    if (siteNeedsMobileScale(url)) {
+      var s = window.innerWidth / MOBILE_LAYOUT_WIDTH;
+      var avail = siteFrame.parentElement.clientHeight || (window.innerHeight - 60);
+      siteFrame.style.width = MOBILE_LAYOUT_WIDTH + 'px';
+      siteFrame.style.height = Math.round(avail / s) + 'px';
+      siteFrame.style.flex = 'none';
+      siteFrame.style.transform = 'scale(' + s + ')';
+      siteFrame.style.transformOrigin = 'top left';
+    } else {
+      siteFrame.style.width = '';
+      siteFrame.style.height = '';
+      siteFrame.style.flex = '';
+      siteFrame.style.transform = '';
+      siteFrame.style.transformOrigin = '';
+    }
+  }
+
+  window.addEventListener('resize', function () {
+    if (siteViewer && siteViewer.classList.contains('show')) applySiteFrameScale(siteViewerUrl);
+  });
+
   function openSiteViewer(url, title) {
     if (!siteViewer || !siteFrame) return;
     siteViewerUrl = url;
@@ -202,12 +234,15 @@
     showSiteViewerLoading();
     siteViewer.classList.add('show');
     document.body.style.overflow = 'hidden';
+    /* 等布局完成后再量高度 */
+    requestAnimationFrame(function () { applySiteFrameScale(url); });
   }
 
   function closeSiteViewer() {
     if (!siteViewer) return;
     siteViewer.classList.remove('show');
     if (siteFrame) siteFrame.src = '';
+    applySiteFrameScale('');
     siteViewerUrl = '';
     document.body.style.overflow = '';
   }
