@@ -28,8 +28,8 @@
 
   /* 视频走 CDN：github.io 对 mp4 限速仅 ~17KB/s（内嵌播放两秒即卡），
      jsDelivr(~300KB/s) 与 GitHub Release(~280KB/s) 通道正常 */
-  var CDN = 'assets/';
-  var FULL_SRC = '../../assets/videos/lost-stars.mp4';
+  var CDN = 'https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/external/lost-stars-show/assets/';
+  var FULL_SRC = 'https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/videos/lost-stars.mp4';
   var PAGES = [
     { type: 'video', src: CDN + 'hero.mp4',   poster: CDN + 'poster_hero.jpg' },
     { type: 'video', src: CDN + '0.mp4?v=2',  poster: CDN + 'poster_0.jpg'    },

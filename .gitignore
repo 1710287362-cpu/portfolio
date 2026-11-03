@@ -11,3 +11,4 @@ scripts/build_*.py
 scripts/organize_*.py
 covers/
 portfolio_frame/
+cos-migrate/
