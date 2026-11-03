@@ -510,7 +510,7 @@ body {
     </div>
     <div class="video-side">
       <div class="video-card video-card-side">
-        <video src="功能动画成片/竖屏.mp4" muted autoplay loop playsinline></video>
+        <video src="功能动画成片/竖屏.mp4" x5-video-player-type="h5" disablepictureinpicture muted autoplay loop playsinline></video>
       </div>
       <div class="video-meta" style="text-align:center">
         <div class="video-meta-cat">Vertical · 1080 × 1920</div>
@@ -672,7 +672,7 @@ function renderCases() {
     card.className = 'case-card';
     var titleClean = c.title;
     if (c.type === 'video') {
-      card.innerHTML = '<div class="case-card-img-wrap"><video src="' + c.src + '" muted autoplay loop playsinline></video><div class="case-card-info"><div class="case-card-cat">' + c.desc + '</div><div class="case-card-title">' + titleClean + '</div></div></div><div class="case-card-arrow">↗</div>';
+      card.innerHTML = '<div class="case-card-img-wrap"><video src="' + c.src + '" x5-video-player-type="h5" disablepictureinpicture muted autoplay loop playsinline></video><div class="case-card-info"><div class="case-card-cat">' + c.desc + '</div><div class="case-card-title">' + titleClean + '</div></div></div><div class="case-card-arrow">↗</div>';
       card.querySelector('video').addEventListener('error', function() { this.parentElement.style.background = '#e8e8ed'; });
     } else {
       card.innerHTML = '<div class="case-card-img-wrap"><img src="' + c.img + '" alt="' + titleClean + '" loading="lazy"><div class="case-card-info"><div class="case-card-cat">' + c.desc + '</div><div class="case-card-title">' + titleClean + '</div></div></div><div class="case-card-arrow">↗</div>';
