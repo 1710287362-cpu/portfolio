@@ -531,7 +531,7 @@
     img.addEventListener('pointerup', endDrag);
     img.addEventListener('pointercancel', endDrag);
 
-    /* 点击（非拖动）→ 打开内置插画灯箱；拖动后只复位不触发 */
+    /* 点击（非拖动）→ 跳转到插画页；拖动后只复位不触发 */
     card.addEventListener('click', function (e) {
       if (moved) {
         e.preventDefault();
@@ -539,11 +539,7 @@
         moved = false;
         return;
       }
-      var first = document.querySelector('.ill-item');
-      if (first) {
-        e.preventDefault();
-        first.click();   /* 复用灯箱的打开逻辑（第一张） */
-      }
+      window.location.href = './illustrations.html';
     }, true);
 
     /* 窗口尺寸变化后重新测量 */
