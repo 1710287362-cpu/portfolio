@@ -25,19 +25,31 @@
   var closeModalBtn = document.getElementById('closeModal');
   var doDownloadBtn = document.getElementById('do-download');
   var openResumeBtn = document.getElementById('btn-open-resume');
-  var RESUME_URL = './assets/images/沈奕旸-简历.pdf';
+  var RESUME_URL = 'https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/images/%E6%B2%88%E5%A5%95%E6%97%B8-%E7%AE%80%E5%8E%86.pdf';
 
   function openResumeModal() {
     if (resumeModal) resumeModal.classList.add('show');
   }
 
   function downloadResume() {
-    var a = document.createElement('a');
-    a.href = RESUME_URL;
-    a.download = '沈奕旸-简历.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    var fname = '沈奕旸-简历.pdf';
+    /* COS 已开 CORS，先 fetch 成 Blob 再本地下载，保证跨域也能存为文件 */
+    fetch(RESUME_URL, { mode: 'cors' }).then(function (r) {
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.blob();
+    }).then(function (blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+    }).catch(function () {
+      /* 兜底：直接打开链接 */
+      window.open(RESUME_URL, '_blank');
+    });
     if (resumeModal) resumeModal.classList.remove('show');
   }
 
