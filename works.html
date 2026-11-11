@@ -9,6 +9,7 @@
     <title>作品集 | 沈奕旸 YOUNG</title>
     <link rel="stylesheet" href="./styles/base.css?v=20261111a" />
     <link rel="stylesheet" href="./styles/works.css?v=20261026d" />
+    <link rel="stylesheet" href="./styles/illustrations.css?v=20261026c" />
   </head>
   <body>
     <!-- 顶部导航（深色页面） -->
@@ -125,8 +126,30 @@
         <!-- 插画板块横幅（纯展示，可拖动查看全图） -->
         <section class="illus-entry">
           <h2 class="illus-entry-title">插画</h2>
-          <div class="illus-entry-card" role="img" aria-label="插画作品横幅">
+          <div class="illus-entry-card" id="illusBanner" role="img" aria-label="插画作品横幅，点击查看全部插画">
             <img src="./assets/illustrations/ill-banner-05.jpg?v=3" alt="插画作品横幅" />
+            <div class="illus-entry-mask">
+              <span class="illus-entry-label">查看全部插画</span>
+            </div>
+          </div>
+          <!-- 灯箱数据源（隐藏）：点击横幅打开放大欣赏 -->
+          <div style="display:none" aria-hidden="true">
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-03.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-03.jpg?v=3" alt="插画 01" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-06.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-06.jpg?v=3" alt="插画 02" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-05.jpg?v=2" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-05.jpg?v=4" alt="插画 03" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-02.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-02.jpg?v=3" alt="插画 04" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-04.jpg?v=2" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-04.jpg?v=3" alt="插画 05" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-10.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-10.jpg?v=3" alt="插画 06" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-07.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-07.jpg?v=3" alt="插画 07" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-09.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-09.jpg?v=3" alt="插画 08" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-14.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-14.jpg?v=3" alt="插画 09" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-15.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-15.jpg?v=3" alt="插画 10" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-16.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-16.jpg?v=2" alt="插画 16" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-08.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-08.jpg?v=3" alt="插画 11" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-01.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-01.jpg?v=3" alt="插画 12" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-12.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-12.jpg?v=3" alt="插画 13" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-13.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-13.jpg?v=3" alt="插画 14" />
+            <img class="ill-item" src="./assets/illustrations/ill-thumb-11.jpg" data-full="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/assets/illustrations/ill-full-11.jpg?v=3" alt="插画 15" />
           </div>
         </section>
       </div>
@@ -185,6 +208,15 @@
       </div>
     </div>
 
-    <script src="./scripts/main.js?v=20261111a"></script>
+    <script src="./scripts/main.js?v=20261111b"></script>
+  
+    <!-- 插画放大欣赏（灯箱） -->
+    <div class="ill-lightbox" id="illLightbox">
+      <img id="illLbImg" src="" alt="" />
+      <button class="ill-lb-btn ill-lb-close" id="illLbClose" aria-label="关闭">✕</button>
+      <button class="ill-lb-btn ill-lb-prev" id="illLbPrev" aria-label="上一张">‹</button>
+      <button class="ill-lb-btn ill-lb-next" id="illLbNext" aria-label="下一张">›</button>
+      <div class="ill-lb-counter" id="illLbCounter"></div>
+    </div>
   </body>
 </html>
