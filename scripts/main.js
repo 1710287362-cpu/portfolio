@@ -25,7 +25,7 @@
   var closeModalBtn = document.getElementById('closeModal');
   var doDownloadBtn = document.getElementById('do-download');
   var openResumeBtn = document.getElementById('btn-open-resume');
-  var RESUME_URL = './assets/images/resume.png';
+  var RESUME_URL = './assets/images/沈奕旸-简历.pdf';
 
   function openResumeModal() {
     if (resumeModal) resumeModal.classList.add('show');
@@ -34,7 +34,7 @@
   function downloadResume() {
     var a = document.createElement('a');
     a.href = RESUME_URL;
-    a.download = '沈奕旸-简历.png';
+    a.download = '沈奕旸-简历.pdf';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
