@@ -99,6 +99,14 @@ button {
 
 .brand .cn { font-size: 24px; }
 .brand .en { font-size: 18px; font-weight: 400; letter-spacing: 3px; }
+.brand .brand-tag {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  margin-left: 10px;
+  white-space: nowrap;
+}
 .brand .sep {
   width: 1px;
   height: 22px;
@@ -437,7 +445,15 @@ html, body {
 
   .brand .cn { font-size: 16px; }
   .brand .en { font-size: 12px; letter-spacing: 2px; }
-  .brand .sep { height: 16px; }
+  .brand .brand-tag {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  margin-left: 10px;
+  white-space: nowrap;
+}
+.brand .sep { height: 16px; }
 
   .nav-right {
     gap: 14px;
@@ -461,7 +477,15 @@ html, body {
   .nav-inner { padding: 0 12px; }
   .brand .cn { font-size: 14px; }
   .brand .en { font-size: 11px; letter-spacing: 1px; }
-  .brand .sep { height: 14px; }
+  .brand .brand-tag {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  margin-left: 10px;
+  white-space: nowrap;
+}
+.brand .sep { height: 14px; }
 
   .nav-right { gap: 10px; }
   .nav-link { font-size: 12px; }
