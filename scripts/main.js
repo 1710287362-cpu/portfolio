@@ -254,6 +254,11 @@
     });
   }
 
+  /* ---------- 视频防下载：禁止右键另存/弹出菜单 ---------- */
+  document.addEventListener('contextmenu', function (e) {
+    if (e.target && e.target.tagName === 'VIDEO') e.preventDefault();
+  });
+
   /* ---------- 后台预加载外部链接，点击时秒开 ---------- */
   window.addEventListener('load', function () {
     setTimeout(function () {
@@ -325,6 +330,8 @@
           var v = document.createElement('video');
           v.src = src;
           v.controls = true;
+          v.setAttribute('controlsList', 'nodownload noplaybackrate noremoteplayback');
+          v.setAttribute('disablepictureinpicture', '');
           v.loop = true;
           v.setAttribute('playsinline', '');
           v.setAttribute('webkit-playsinline', '');

@@ -373,9 +373,10 @@ img, video {
 }
 
 /* ========== 响应式 ========== */
+/* 视频区始终单列：与上下图片同宽 */
 @media (min-width: 768px) {
   .video-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 }
 
@@ -478,20 +479,12 @@ img, video {
     <div class="video-item reveal">
       <div class="video-item-label">TVC 广告片</div>
       <div class="video-wrapper">
-        <video controls preload="none" poster="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/external/lafting-site/assets/tvc_cover.jpg">
+        <video controls controlsList="nodownload noplaybackrate noremoteplayback" disablepictureinpicture preload="none" poster="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/external/lafting-site/assets/tvc_cover.jpg">
           <source src="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/external/lafting-site/assets/tvc_ad_720p.mp4" type="video/mp4">
         </video>
       </div>
     </div>
 
-    <div class="video-item reveal">
-      <div class="video-item-label">动效成片</div>
-      <div class="video-wrapper">
-        <video controls preload="none" poster="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/external/lafting-site/assets/motion_cover.jpg">
-          <source src="https://lost-stars-100053681187-1505501647.cos.ap-guangzhou.myqcloud.com/portfolio/external/lafting-site/assets/motion_video.mp4" type="video/mp4">
-        </video>
-      </div>
-    </div>
   </div>
 </section>
 

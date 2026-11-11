@@ -111,6 +111,26 @@
   flex: 1;
 }
 
+/* 姓名 + 作品集展示标签（右侧） */
+.hero-name-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.hero-name-tag {
+  font-size: clamp(13px, 1.5vw, 17px);
+  font-weight: 400;
+  letter-spacing: 5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  border-left: 1px solid rgba(255, 255, 255, 0.28);
+  padding-left: 20px;
+  margin-bottom: 26px;
+  white-space: nowrap;
+}
+
 /* 姓名 */
 .hero-name-cn {
   font-size: clamp(32px, 4.5vw, 48px);

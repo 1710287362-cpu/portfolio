@@ -554,7 +554,7 @@ html, body {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 70px;
+  bottom: 92px;
   z-index: 25;
   padding: 9px 22px;
   border-radius: 999px;

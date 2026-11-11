@@ -25,6 +25,11 @@
  */
 (function () {
   'use strict';
+  /* 视频防下载：禁止右键另存/弹出菜单 */
+  document.addEventListener('contextmenu', function (e) {
+    if (e.target && e.target.tagName === 'VIDEO') e.preventDefault();
+  });
+
 
   /* 视频走 CDN：github.io 对 mp4 限速仅 ~17KB/s（内嵌播放两秒即卡），
      jsDelivr(~300KB/s) 与 GitHub Release(~280KB/s) 通道正常 */
